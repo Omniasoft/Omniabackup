@@ -1,0 +1,20 @@
+<VirtualHost *:80>
+	ServerName <%= @project %>.<%= @name %>.devdb.nl
+	ServerAlias *.<%= @project %>.<%= @name %>.devdb.nl <%= @project %>.<%= @name %>.devdb.nl
+	ServerAdmin k.valk@devdb.nl
+	DocumentRoot "/var/www/<%= @name %>/<%= @project %>"
+
+	<IfModule mpm_itk_module>
+		AssignUserId <%= @name %> <%= @name %>
+	</IfModule>
+
+	<Directory "/var/www/<%= @name %>/<%= @project %>">
+		Options Indexes FollowSymLinks
+		AllowOverride All
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	CustomLog "/var/www/<%= @name %>/logs/<%= @project %>_access.txt" common
+	ErrorLog "/var/www/<%= @name %>/logs/<%= @project %>_error.txt"
+</VirtualHost>

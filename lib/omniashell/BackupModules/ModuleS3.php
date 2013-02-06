@@ -55,7 +55,12 @@ class ModuleS3 extends BackupModule
 		}
 		
 		$time = date('Ymd').'T'.date('His');
-		return $this->s3->putObjectFile($file, $bucket, $directory.(($directory != null) ? '/' : '').'L'.$life.'_'.$name.'.'.$time.'.tar.gz');
+		if(!$this->s3->putObjectFile($file, $bucket, $directory.(($directory != null) ? '/' : '').'L'.$life.'_'.$name.'.'.$time.'.tar.gz'))
+		{
+			$this->lastError = "An error occured in the s3 library";
+			return false;
+		}
+		return true;
 	}
 	
 	/**

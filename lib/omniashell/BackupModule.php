@@ -15,6 +15,44 @@ abstract class BackupModule
 	// Every module should atleast implement a run function
 	abstract public function run($args);
 	
+	/** 
+	 * Compress a list of files or a mix of files and folders
+	 *
+	 * @param string $paths An array of paths to files or folders
+	 * @param bool $filesOnly True if you want only files in archive excluding directory
+	 * @return string The pathname to the archive
+	 */
+	protected function compress($paths, $filesOnly = false)
+	{
+		if(!is_array($paths)) return false;
+		
+		$tmp = tempnam(sys_get_temp_dir(), 'S3');
+		$tmp = str_replace('C:\Windows\cygwin\tmp\\', '/tmp/', $tmp);
+		
+		// If only files change dir on every file but watch out for relative vs absolute
+		$files = '';
+		if($filesOnly)
+		{
+			$cwd = getcwd();
+			foreach($paths as &$path)
+			{
+				if(!is_file($path)) continue;
+				$d = dirname($path);
+				$files .= ' -C '.($d[0] != '/' ? $cwd.'/'.$d : $d).' '.basename($path);
+			}
+		}
+		else
+			$files = implode(' ',$paths); //Else just implode that shit
+	
+		// Run the command
+		$cmd = 'tar -czf  "'.$tmp.'" '.$files;
+		$out = `$cmd`;
+		
+		// Return output
+		return $tmp;
+	}
+	
+	
 	// Read the configuration file
 	protected function getConfig($key)
 	{

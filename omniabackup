@@ -1,0 +1,8 @@
+#!/usr/bin/php
+<?php
+// Incluse
+include('lib/omniashell/omniabackup.php');
+
+// Create the backup and let it figure the rest out
+$backup = new Omniabackup();
+$backup->run();

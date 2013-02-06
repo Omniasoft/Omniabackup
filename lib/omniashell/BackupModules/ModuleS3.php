@@ -41,66 +41,62 @@ class ModuleS3 extends BackupModule
 	{
 		if(!file_exists($file))
 			return false;
-	
-		$this->s3->putObjectFile($file, $bucket, $directory.(($directory != null) ? '/' : '').'L'.$life.'_'.baseName($file));
+		
+		$time = date('Ymd').'T'.date('His');
+
+		$this->s3->putObjectFile($file, $bucket, $directory.(($directory != null) ? '/' : '').'L'.$life.'_'.$name.'.'.$time.'.tar.gz');
 	}
 	
 	function run($args)
 	{
 		// Interpeter the arguments
 		printf("S3 is running\n");
-		print_r($args);
-		
-		$o = 0;
-		
+				
 		// Default values for flags
 		$dir = null;
 		$fileOnly = false;
 		$life = self::LIFE_MONTH;
 		
 		// Parse the optional flags
-		for($i = 0; $i < count($args); $i++)
+		$c = count($args);
+		for($i = 0; $i < $c; $i++)
 		{
 			$arg = &$args[$i]; 
 			if($arg[0] == '-')
 			{
-				$z = $i;
+				$t = $i;
 				switch($arg[1])
 				{
 					case 'f': $fileOnly = true; $a=1; break;
 					case 'p': $dir = $args[++$i]; $a=2; break;
 					case 'l': $life = intval($args[++$i]); $a=2; break;
+					default: $a=1; break;
 				}
-				for(; $z < $i+$a; $z++)
+				for($z = $t; $z < $t+$a; $z++)
 					unset($args[$z]);
 			}
 		}
 		$args = array_values($args);
-		print_r($args);
 		
 		// Not enough args
 		if(count($args) < 3)
-			return false; 
+			return false;
 		
 		// Rest variables parser
 		$bucket = $args[0];
 		$name = $args[1];
-		$paths = array_slice($args, $o+2);
+		$paths = array_slice($args, 2);
 		
 		// Implicit f flag
 		$fileOnly = (count($paths) > 1 ? $fileOnly : true);
-		
-		printf("%s %s (dir: %s, fileOnly: %b, life: %d)\n", $bucket, $name, $dir, $fileOnly, $life);
-		print_r($paths);
-		
-		//echo "S3::listBuckets(): ".print_r($this->s3->listBuckets(), 1)."\n";
-		
-		//$this->backupFile('conf.d/s3.ini', 'backup.devdb.nl', 'aap/faap');
-		
+				
 		// Create the archive
-		$tmpPath = $this->compress(array('conf.d/s3.ini', 'conf.d/.gitignore', 'omniabackup'), true);
+		$tmpPath = $this->compress($paths, $fileOnly);
+		
+		// Back this shit up
+		$this->backupFile($name, $tmpPath, $bucket, $dir, $life);
 
 		// Delete the archive for cleanup
-		`rm $tmpPath`;
+		unlink($tmpPath);
 	}
 }

@@ -26,8 +26,7 @@ abstract class BackupModule
 	{
 		if(!is_array($paths)) return false;
 		
-		$tmp = tempnam(sys_get_temp_dir(), 'S3');
-		$tmp = str_replace('C:\Windows\cygwin\tmp\\', '/tmp/', $tmp);
+		$tmp = uniqid('S3').'.tmp';
 		
 		// If only files change dir on every file but watch out for relative vs absolute
 		$files = '';
@@ -47,6 +46,10 @@ abstract class BackupModule
 		// Run the command
 		$cmd = 'tar -czf  "'.$tmp.'" '.$files;
 		$out = `$cmd`;
+		
+		// Check for errors
+		if(filesize($tmp) <= 0)
+			return false;
 		
 		// Return output
 		return $tmp;

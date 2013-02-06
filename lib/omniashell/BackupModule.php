@@ -19,11 +19,11 @@ abstract class BackupModule
 	protected function getConfig($key)
 	{
 		if($this->configCache == null)
-			$this->configCache = @parse_ini_file($this->name.'.ini');
-		
+			$this->configCache = @parse_ini_file('conf.d/'.$this->name.'.ini');
+
 		if(!is_array($this->configCache))
 			return null; // Something went wrong, sorry!
-			
+		
 		return (array_key_exists($key, $this->configCache) ? $this->configCache[$key] : null);
 	}
 

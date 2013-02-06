@@ -28,7 +28,7 @@ abstract class BackupModule
 	{
 		if(!is_array($paths))
 		{
-			$this->lastError 
+			$this->lastError = "Paths was not an array";
 			return false;
 		}
 		

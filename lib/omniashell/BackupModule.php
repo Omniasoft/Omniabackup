@@ -76,6 +76,7 @@ abstract class BackupModule
 		switch(strtolower($name))
 		{
 			case 's3': return new ModuleS3();
+			case 's3postgres': return new ModuleS3Postgres();
 			default: return null;
 		}
 	}

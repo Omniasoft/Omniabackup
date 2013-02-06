@@ -1,0 +1,3 @@
+[submodule "lib/amazon-s3"]
+	path = lib/amazon-s3
+	url = git://github.com/tpyo/amazon-s3-php-class.git

@@ -19,12 +19,12 @@ class Omniabackup
 			if(!$job['cron']->isDue())
 				continue;
 			
-			// Run this job
-			printf('%s ', $job['module']);
-			print_r($job['args']);
-			
+			// Get the module
 			$module = BackupModule::getModule($job['module']);
-			print_r($module);
+			if($module == null) continue; // Wrong module specefied
+			
+			// Run the backup module
+			$module->run($job['args']);
 		}	
 	}
 	

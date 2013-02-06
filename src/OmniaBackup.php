@@ -43,7 +43,7 @@ class Omniabackup
 		$return = array();
 		
 		// Get file contents
-		$crontents = file_get_contents('cron.conf'); //$this->configDir.'/
+		$crontents = file_get_contents('conf.d/cron.conf'); //$this->configDir.'/
 		$lines = preg_split('/\r\n|\r|\n/', $crontents);
 		
 		// Parse all the lines

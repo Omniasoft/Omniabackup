@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
-// Incluse
-include('lib/omniashell/OmniaShell.php');
+// Include
+include('src/OmniaShell.php');
 
 // Create the shell
 $shell = new Omniashell();

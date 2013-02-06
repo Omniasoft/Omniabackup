@@ -26,7 +26,7 @@ abstract class BackupModule
 	{
 		if(!is_array($paths)) return false;
 		
-		$tmp = uniqid('S3').'.tmp';
+		$tmp = $this->getTmpFile();
 		
 		// If only files change dir on every file but watch out for relative vs absolute
 		$files = '';
@@ -57,6 +57,13 @@ abstract class BackupModule
 		return $tmp;
 	}
 	
+	protected function getTmpFile()
+	{
+		if(!is_dir('tmp'))
+			mkdir('tmp');
+			
+		return 'tmp/'.uniqid('SQL').'.tmp';
+	}
 	
 	// Read the configuration file
 	protected function getConfig($key)

@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 // Incluse
-include('lib/omniashell/omniabackup.php');
+include(__DIR__.'/lib/omniashell/omniabackup.php');
 
 // TODO: We should make sure this script does not run more then once on the same minute
 

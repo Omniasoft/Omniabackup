@@ -43,6 +43,8 @@ class Omniabackup
 			// Preprocess the line
 			$l = preg_replace('!\s+!', ' ', trim($l));
 			
+			if(empty($l)) continue;
+			
 			// Skip comment lines
 			if($l[0] == '#') continue;
 			

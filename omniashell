@@ -74,6 +74,7 @@ class Omniashell
 		printf("\n");
 	}
 	
+	// Setuping up an jailed account
 	function devadd($user, $args)
 	{
 		// Check input
@@ -95,6 +96,12 @@ class Omniashell
 		
 		
 		printf("New user\n%s\n%s", $cmdUseradd, $cmdJailuser);
+	}
+	
+	// Installing phpPgAdmin
+	function phpphgadmin()
+	{
+	
 	}
 }
 

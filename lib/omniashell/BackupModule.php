@@ -58,14 +58,17 @@ abstract class BackupModule
 	/**
 	 * Get temp file path
 	 * 
+	 * @param string Will make a path to tmp directory with given name (OPTIONAL)
 	 * @return string A path to a temporary file (it does not create this file)
 	 */
-	protected function getTmpFile()
+	protected function getTmpFile($fileName = null)
 	{
 		if(!is_dir('tmp'))
+		{
 			mkdir('tmp');
-			
-		return 'tmp/'.uniqid('OS').'.tmp';
+			chmod('tmp', 0777);
+		}
+		return 'tmp/'.(($fileName != null) ? $fileName : uniqid('OS').'.tmp');
 	}
 	
 	/**

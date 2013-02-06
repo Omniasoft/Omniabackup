@@ -7,8 +7,7 @@ class ModuleS3Postgres extends ModuleS3
 	function compressDatabase()
 	{
 		// Format
-		//$tmp = $this->getTmpFile();
-		$tmp = 'tmp/dump.sql';
+		$tmp = $this->getTmpFile('dump.sql');
 		$cmd1 = 'sudo -u postgres touch '.$tmp;
 		$cmd2 = 'sudo -u postgres pg_dumpall -f '.$tmp.' -o';
 		

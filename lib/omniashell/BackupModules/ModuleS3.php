@@ -22,6 +22,7 @@ class ModuleS3 extends BackupModule
 	public $name = 's3';
 	private $s3;
 	
+	// The constructor
 	public function __construct()
 	{
 		// Setup our wrapper for aws S3
@@ -36,6 +37,7 @@ class ModuleS3 extends BackupModule
 	 * @param string $bucket The bucket name
 	 * @param string $directory The directory for the file (can be like 'dir1', 'dir/dir2', etc..) leave empty for no directory
 	 * @param string $life The life time for the object in days (add the LX_ rules to AWS)
+	 * @return bool True on success False otherwise
 	 */
 	function backupFile($name, $file, $bucket, $directory = null, $life = self::LIFE_MONTH)
 	{
@@ -44,9 +46,15 @@ class ModuleS3 extends BackupModule
 		
 		$time = date('Ymd').'T'.date('His');
 
-		$this->s3->putObjectFile($file, $bucket, $directory.(($directory != null) ? '/' : '').'L'.$life.'_'.$name.'.'.$time.'.tar.gz');
+		return $this->s3->putObjectFile($file, $bucket, $directory.(($directory != null) ? '/' : '').'L'.$life.'_'.$name.'.'.$time.'.tar.gz');
 	}
 	
+	/**
+	 * Run this module
+	 *
+	 * @param array Arguments for this function
+	 * @return bool True on success False otherwise
+	 */
 	function run($args)
 	{
 		// Interpeter the arguments

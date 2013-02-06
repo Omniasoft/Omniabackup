@@ -47,8 +47,6 @@ abstract class BackupModule
 		$cmd = 'tar -czf  "'.$tmp.'" '.$files;
 		$out = `$cmd`;
 		
-		printf($cmd."\n");
-		
 		// Check for errors
 		if(!(file_exists($tmp) && filesize($tmp) > 0))
 			return false;
@@ -57,15 +55,24 @@ abstract class BackupModule
 		return $tmp;
 	}
 	
+	/**
+	 * Get temp file path
+	 * 
+	 * @return string A path to a temporary file (it does not create this file)
+	 */
 	protected function getTmpFile()
 	{
 		if(!is_dir('tmp'))
 			mkdir('tmp');
 			
-		return 'tmp/'.uniqid('SQL').'.tmp';
+		return 'tmp/'.uniqid('OS').'.tmp';
 	}
 	
-	// Read the configuration file
+	/**
+	 * Get a config value
+	 *
+	 * @return string If key not exists returns null else the value of the key in the ini
+	 */
 	protected function getConfig($key)
 	{
 		if($this->configCache == null)
@@ -77,7 +84,12 @@ abstract class BackupModule
 		return (array_key_exists($key, $this->configCache) ? $this->configCache[$key] : null);
 	}
 
-	// A static function that returns a correct module for modules in cron
+	/**
+	 * Gets the correct module from a module name
+	 * 
+	 * @param string Name of the module
+	 * @return BackupModule The module for name type
+	 */
 	static public function getModule($name)
 	{
 		switch(strtolower($name))

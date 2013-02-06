@@ -50,8 +50,7 @@ abstract class BackupModule
 			$files = implode(' ',$paths); //Else just implode that shit
 	
 		// Run the command
-		if(!$this->execute('tar -czf  "'.$tmp.'" '.$files))
-			return false;
+		$this->execute('tar czf  "'.$tmp.'" '.$files);
 		
 		// Check for errors
 		if(!(file_exists($tmp) && filesize($tmp) > 0))

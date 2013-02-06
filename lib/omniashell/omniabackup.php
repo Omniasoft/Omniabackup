@@ -1,5 +1,6 @@
 <?php
 require_once('lib/cron/build/cron.phar');
+include('BackupModule.php');
 
 class Omniabackup
 {
@@ -9,15 +10,22 @@ class Omniabackup
 	function run()
 	{
 		// Get all cron jobs
-		$crons = $this->parseCron();
+		$jobs = $this->parseCron();
 		
 		// Go trough all crons and run them if due
-		foreach($crons as &$$cron)
+		foreach($jobs as &$job)
 		{
-		
-		}
-		print_r($crons);
-		
+			// Skip jobs that are not due
+			if(!$job['cron']->isDue())
+				continue;
+			
+			// Run this job
+			printf('%s ', $job['module']);
+			print_r($job['args']);
+			
+			$module = BackupModule::getModule($job['module']);
+			print_r($module);
+		}	
 	}
 	
 	function parseCron()

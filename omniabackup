@@ -3,6 +3,8 @@
 // Incluse
 include('lib/omniashell/omniabackup.php');
 
+// TODO: We should make sure this script does not run more then once on the same minute
+
 // Create the backup and let it figure the rest out
 $backup = new Omniabackup();
 $backup->run();

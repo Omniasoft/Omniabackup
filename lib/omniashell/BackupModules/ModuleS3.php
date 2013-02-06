@@ -50,7 +50,7 @@ class ModuleS3 extends BackupModule
 	{
 		if(!file_exists($file))
 		{
-			$lastError = "The input file does not exists";
+			$this->lastError = "The input file does not exists";
 			return false;
 		}
 		
@@ -97,7 +97,7 @@ class ModuleS3 extends BackupModule
 		// Not enough args
 		if(count($args) < 3)
 		{
-			$lastError = "Not enough arguments";
+			$this->lastError = "Not enough arguments";
 			return false;
 		}
 		

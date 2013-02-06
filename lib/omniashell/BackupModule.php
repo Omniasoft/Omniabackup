@@ -26,7 +26,11 @@ abstract class BackupModule
 	 */
 	protected function compress($paths, $filesOnly = false)
 	{
-		if(!is_array($paths)) return false;
+		if(!is_array($paths))
+		{
+			$this->lastError 
+			return false;
+		}
 		
 		$tmp = $this->getTmpFile();
 		
@@ -64,6 +68,8 @@ abstract class BackupModule
 	 */
 	public function getLastError()
 	{
+		if(empty($this->lastError))
+			return "Unknown";
 		return $this->lastError;
 	}
 	
@@ -79,8 +85,8 @@ abstract class BackupModule
 	{
 		// Capture also STDERR
 		$cmd = $command.' 2>&1';		
-		$lastError = `$cmd`;
-		return empty($lastError);
+		$this->lastError = `$cmd`;
+		return empty($this->lastError);
 	}
 	
 	/**
@@ -111,7 +117,7 @@ abstract class BackupModule
 
 		if(!is_array($this->configCache))
 		{
-			$lastError = "Ini file was not in correct format";
+			$this->lastError = "Ini file was not in correct format";
 			return false; // Something went wrong, sorry!
 		}
 		

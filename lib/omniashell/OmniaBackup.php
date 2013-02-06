@@ -6,15 +6,18 @@ class Omniabackup
 {
 	public $configDir = '/etc/omniashell';
 
-	// Our main function
+	/**
+	 * Run all the jobs
+	 */
 	function run()
 	{
 		// Get all cron jobs
 		$jobs = $this->parseCron();
+		printf("Checking %d job(s)\n", count($jobs));
 		
 		// Go trough all crons and run them if due
 		foreach($jobs as &$job)
-		{
+		{			
 			// Skip jobs that are not due
 			if(!$job['cron']->isDue())
 				continue;
@@ -24,10 +27,16 @@ class Omniabackup
 			if($module == null) continue; // Wrong module specefied
 			
 			// Run the backup module
-			$module->run($job['args']);
+			if(!$module->run($job['args']))
+				printf("An error occured: %s\n", $module->getLastError());
 		}	
 	}
 	
+	/**
+	 * Parses the omniashell cron
+	 *
+	 * @return array An array('cron', 'module', 'args') which contains all information about the job
+	 */
 	function parseCron()
 	{
 		// The return array with all Cron object and module + arguments
@@ -63,7 +72,6 @@ class Omniabackup
 			// Add it to the list
 			$return[] = array('cron' => $cron, 'module' => $parts[5], 'args' => $arguments);
 		}
-		
 		return $return;
 	}
 }

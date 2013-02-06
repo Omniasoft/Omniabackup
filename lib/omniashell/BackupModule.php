@@ -5,9 +5,11 @@ abstract class BackupModule
 {
 	// Publics
 	public $name;
+	public $configName;
 
 	// Protecteds
 	protected $configFile;
+	protected $lastError;
 	
 	// Privates
 	private $configCache = null;
@@ -44,8 +46,8 @@ abstract class BackupModule
 			$files = implode(' ',$paths); //Else just implode that shit
 	
 		// Run the command
-		$cmd = 'tar -czf  "'.$tmp.'" '.$files;
-		$out = `$cmd`;
+		if(!$this->execute('tar -czf  "'.$tmp.'" '.$files))
+			return false;
 		
 		// Check for errors
 		if(!(file_exists($tmp) && filesize($tmp) > 0))
@@ -53,6 +55,32 @@ abstract class BackupModule
 		
 		// Return output
 		return $tmp;
+	}
+	
+	/**
+	 * Gets the last message of a execute call
+	 *
+	 * @return string Output of the last executed command
+	 */
+	public function getLastError()
+	{
+		return $this->lastError;
+	}
+	
+	/**
+	 * Execute a shell command
+	 *
+	 * And redirects errors to the return of this function
+	 *
+	 * @param string The linux command
+	 * @return bool True if the command had no output and false otherwise
+	 */
+	protected function execute($command)
+	{
+		// Capture also STDERR
+		$cmd = $command.' 2>&1';		
+		$lastError = `$cmd`;
+		return empty($lastError);
 	}
 	
 	/**
@@ -79,10 +107,13 @@ abstract class BackupModule
 	protected function getConfig($key)
 	{
 		if($this->configCache == null)
-			$this->configCache = @parse_ini_file('conf.d/'.$this->name.'.ini');
+			$this->configCache = @parse_ini_file('conf.d/'.$this->configName.'.ini');
 
 		if(!is_array($this->configCache))
-			return null; // Something went wrong, sorry!
+		{
+			$lastError = "Ini file was not in correct format";
+			return false; // Something went wrong, sorry!
+		}
 		
 		return (array_key_exists($key, $this->configCache) ? $this->configCache[$key] : null);
 	}

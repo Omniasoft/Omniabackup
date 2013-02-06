@@ -1,36 +1,46 @@
 <?php
-/* Different ways to call S3 Postgres module
- * s3postgres bucket name
+/**
+ * Different ways to call S3Postgress module
+ * s3postgress [arguments] bucket name
+ * arguments:
+ * -p <path>    The bucked path
+ * -l <n>       The number of days to live
  */
 class ModuleS3Postgres extends ModuleS3
 {
-	function compressDatabase()
+	public $name = 's3postgres';
+	
+	/**
+	 * Dump and compress the database
+	 *
+	 * @return string Path to the compressed dump
+	 */
+	function getDatabaseDump()
 	{
-		// Format
-		$tmp = $this->getTmpFile('dump.sql');
-		$cmd1 = 'sudo -u postgres touch '.$tmp;
-		$cmd2 = 'sudo -u postgres pg_dumpall -f '.$tmp.' -o';
-		
-		// Execute
-		`$cmd1`; //File permission fix
-		`$cmd2`;
-		
-		// Compress and cleanup
-		$archive = $this->compress(array($tmp), true);
-		unlink($tmp);
-		
-		if(!$archive)
-		{
-			unlink($archive);
+		// Execute the shell
+		$sql = $this->getTmpFile('dump.sql');
+		if(!$this->execute('sudo -u postgres touch '.$sql))
+			return false;		
+		if(!$this->execute('sudo -u postgres pg_dumpall -f '.$sql.' -o'))
 			return false;
-		}
+				
+		// Compress
+		$archive = $this->compress(array($sql), true);
+		
+		// Cleanup
+		unlink($sql);
 		return $archive;
 	}
-
+	
+	/**
+	 * Run this module
+	 *
+	 * @param array Arguments for this function
+	 * @return bool True on success False otherwise
+	 */
 	function run($args)
 	{
-		// Interpeter the arguments
-		printf("S3Postgres is running\n");
+		printf("Executing job S3Postgres\n");
 				
 		// Default values for flags
 		$dir = null;
@@ -65,15 +75,15 @@ class ModuleS3Postgres extends ModuleS3
 		$name = $args[1];
 		
 		// Dump the postgres database
-		$file = $this->compressDatabase();
-		
+		$file = $this->getDatabaseDump();
 		if(!$file)
 			return false;
 		
 		// Back this shit up
-		$this->backupFile($name, $file, $bucket, $dir, $life);
+		$upload = $this->backupFile($name, $file, $bucket, $dir, $life);
 
 		// Delete the archive for cleanup
 		unlink($file);
+		return $upload;
 	}
 }

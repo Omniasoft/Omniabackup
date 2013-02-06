@@ -6,6 +6,37 @@ class Omniashell
 	public $group = 'dev';
 	public $dirs = array('www' => '/var/www', 'passwd' => '/etc/passwd');
 
+	// Protected
+	protected $lastError;
+	
+	/**
+	 * Gets the last message of a execute call
+	 *
+	 * @return string Output of the last executed command
+	 */
+	public function getLastError()
+	{
+		if(empty($this->lastError))
+			return "Unknown";
+		return $this->lastError;
+	}
+	
+	/**
+	 * Execute a shell command
+	 *
+	 * And redirects errors to the return of this function
+	 *
+	 * @param string The linux command
+	 * @return bool True if the command had no output and false otherwise
+	 */
+	protected function execute($command)
+	{
+		// Capture also STDERR
+		$cmd = $command.' 2>&1';		
+		$this->lastError = `$cmd`;
+		return empty($this->lastError);
+	}
+	
 	// Helper functions
 	function isUser($user)
 	{
@@ -37,6 +68,17 @@ class Omniashell
 		return true;
 	}
 
+	function makePostgres($user, $password)
+	{
+		$sql = "CREATE ROLE ".$user."; ALTER ROLE ".$user." WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN PASSWORD '".$password."'";
+	}
+	
+	/**
+	 * Generate a password
+	 *
+	 * @param int Lenght of the password
+	 * @return string A random generate password
+	 */
 	function getPassword($len = 10)
 	{
 		$specials = '@#$%';

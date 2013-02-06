@@ -47,8 +47,10 @@ abstract class BackupModule
 		$cmd = 'tar -czf  "'.$tmp.'" '.$files;
 		$out = `$cmd`;
 		
+		printf($cmd."\n");
+		
 		// Check for errors
-		if(filesize($tmp) <= 0)
+		if(!(file_exists($tmp) && filesize($tmp) > 0))
 			return false;
 		
 		// Return output

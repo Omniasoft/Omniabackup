@@ -88,10 +88,13 @@ class ModuleS3 extends BackupModule
 		$paths = array_slice($args, 2);
 		
 		// Implicit f flag
-		$fileOnly = (count($paths) > 1 ? $fileOnly : true);
+		if(count($paths) == 1 && is_file($paths[0]))
+			$fileOnly = true;
 				
 		// Create the archive
 		$tmpPath = $this->compress($paths, $fileOnly);
+		if(!$tmpPath)
+			return false;
 		
 		// Back this shit up
 		$this->backupFile($name, $tmpPath, $bucket, $dir, $life);

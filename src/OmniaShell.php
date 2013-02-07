@@ -71,5 +71,8 @@ class Omniashell extends OmniaBase
 		// Create the different parts for this environment
 		$this->addJailedUser($user, $email, $userPassword);
 		$this->shellPostgres->createEnvironment($user, $postgresPassword);
+		
+		// Report information
+		printf("User information:\n Username: %s\n Email: %s\n Userpassword: %s\n Postgrespassword: %s\n", $user, $email, $userPassword, $postgresPassword);
 	}
 }

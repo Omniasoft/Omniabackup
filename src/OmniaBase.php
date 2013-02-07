@@ -101,7 +101,8 @@ class OmniaBase
 	 */
 	function isUser($user)
 	{
-		return stristr($this->execute('cat '.$this->dirs['passwd']), $user);
+		$this->execute('cat '.$this->dirs['passwd']);
+		return stristr($this->getLastError(), $user);
 	}
 
 	/**

@@ -64,6 +64,9 @@ class Omniashell extends OmniaBase
 		if(!$this->isEmail($email))
 			die('Not a valid email');
 		
+		// Run this
+		printf("Making this development account (warning this will take some time)\n");
+		
 		// Make some passwords
 		$userPassword = $this->getPassword();
 		$postgresPassword = $this->getPassword();

@@ -30,7 +30,7 @@ class OmniaBase
 	{
 		// Capture also STDERR
 		$cmd = $command.($catchError ? ' 2>&1' : '');
-		//echo $cmd."\n"; return;
+		echo $cmd."\n"; return;
 		$this->lastError = `$cmd`;
 		return empty($this->lastError);
 	}

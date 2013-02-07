@@ -35,7 +35,6 @@ class OmniaBase
 		return empty($this->lastError);
 	}
 	
-	useradd -m -c "test@test.nl" -g dev -p $1$mI6Qa2ry$TvWjVNQ06Y3GeNK.IwUGb. luuk 2>&1
 	/**
 	 * Gets Passwd from password
 	 *

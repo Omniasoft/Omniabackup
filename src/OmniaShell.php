@@ -71,6 +71,7 @@ class Omniashell
 	function makePostgres($user, $password)
 	{
 		$sql = "CREATE ROLE ".$user."; ALTER ROLE ".$user." WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN PASSWORD '".$password."'";
+		$this->execute('echo "'.$sql.'" | sudo -u postgres');
 	}
 	
 	/**

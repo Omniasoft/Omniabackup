@@ -1,6 +1,6 @@
 <?php
 include('ShellPostgres.php');
-include('OmniaBase.php');
+include_once('OmniaBase.php');
 
 class Omniashell extends OmniaBase
 {
@@ -30,6 +30,23 @@ class Omniashell extends OmniaBase
 		printf("\n");
 	}
 	
+	/**
+	 * Creates a jailed system user
+	 *
+	 * @param..
+	 * 
+	 */
+	function addJailedUser($user, $email, $password)
+	{	
+		// Create the jail
+		$environments = 'basicshell editors extendedshell netutils ssh sftp scp apacheutils git postgres';
+		$this->execute('jk_init -v -j '.$this->dirs['www'].'/'.$user.' '.$environments);
+		
+		// Create the user and jail it!
+		$this->execute('useradd -m -c "'.$email.'" -g '.$this->group.' -p '.$this->getPasswd($password).' '.$user);
+		$this->execute('jk_jailuser -m -s /bin/bash -j '.$this->dirs['www'].'/'.$user.' '.$user);
+	}
+	
 	// Setuping up an jailed account
 	function devadd($user, $args)
 	{
@@ -43,15 +60,14 @@ class Omniashell extends OmniaBase
 		$email = $args[0];
 		if(!$this->isEmail($email))
 			die('Not a valid email');
-			
-		// Add user
-		$password = $this->getPassword();
-		$cmdUseradd = 'useradd -m -c "'.$email.'" -g '.$this->group.' -p '.$password.' '.$user;
-		$cmdJailuser = 'jk_jailuser -m -j '.$this->dirs['www'].'/'.$user.' '.$user;
 		
+		// Make some passwords
+		$userPassword = $this->getPassword();
+		$postgresPassword = $this->getPassword();
 		
-		
-		printf("New user\n%s\n%s", $cmdUseradd, $cmdJailuser);
+		// Create the different parts for this environment
+		$this->addJailedUser($user, $email, $userPassword);
+		$this->shellPostgres->createEnvironment($user, $postgresPassword);
 	}
 	
 	// Installing phpPgAdmin

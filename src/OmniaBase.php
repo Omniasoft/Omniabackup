@@ -28,9 +28,25 @@ class OmniaBase
 	protected function execute($command)
 	{
 		// Capture also STDERR
-		$cmd = $command.' 2>&1';		
+		$cmd = $command.' 2>&1';
+		echo $command."\n";
+		return;
 		$this->lastError = `$cmd`;
 		return empty($this->lastError);
+	}
+	
+	/**
+	 * Gets Passwd from password
+	 *
+	 * Creates a linux password from the given password
+	 *
+	 * @param string Password
+	 * @return string Linux password
+	 */
+	function getPasswd($password)
+	{
+		$this->execute('openssl passwd -1 '.$password);
+		return $this->getLastError();
 	}
 	
 	/**
@@ -75,7 +91,7 @@ class OmniaBase
 	 */
 	function isUser($user)
 	{
-		return stristr($this->execute('cat '.$this->dirs['passwd'], $user);
+		return stristr($this->execute('cat '.$this->dirs['passwd']), $user);
 	}
 
 	/**

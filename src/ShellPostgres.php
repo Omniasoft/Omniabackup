@@ -1,5 +1,6 @@
 <?php
-include('OmniaBase.php');
+include_once('OmniaBase.php');
+
 class ShellPostgres extends OmniaBase
 {
 

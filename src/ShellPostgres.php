@@ -27,8 +27,8 @@ class ShellPostgres extends OmniaBase
 					GRANT ALL ON SCHEMA public TO '.$user.' WITH GRANT OPTION;
 					EOT';
 
-		$this->execute($create);
-		$this->execute($permis);
+		$this->execute($create, false);
+		$this->execute($permis, false);
 	}
 
 }

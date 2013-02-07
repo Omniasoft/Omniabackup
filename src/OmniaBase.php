@@ -23,16 +23,19 @@ class OmniaBase
 	 * And redirects errors to the return of this function
 	 *
 	 * @param string The linux command
+	 * @param bool Redirect STDERROR to script (default true)
 	 * @return bool True if the command had no output and false otherwise
 	 */
-	protected function execute($command)
+	protected function execute($command, $catchError = true)
 	{
 		// Capture also STDERR
-		$cmd = $command.' 2>&1';
+		$cmd = $command.($catchError ? ' 2>&1' : '');
+		//echo $cmd."\n"; return;
 		$this->lastError = `$cmd`;
 		return empty($this->lastError);
 	}
 	
+	useradd -m -c "test@test.nl" -g dev -p $1$mI6Qa2ry$TvWjVNQ06Y3GeNK.IwUGb. luuk 2>&1
 	/**
 	 * Gets Passwd from password
 	 *

@@ -43,7 +43,7 @@ class Omniashell extends OmniaBase
 		$this->execute('jk_init -v -j '.$this->dirs['www'].'/'.$user.' '.$environments);
 		
 		// Create the user and jail it!
-		$this->execute('useradd -m -c "'.$email.'" -g '.$this->group.' -p '.$this->getPasswd($password).' '.$user);
+		$this->execute('useradd -m -c \''.$email.'\' -g '.$this->group.' -p \''.$this->getPasswd($password).'\' '.$user);
 		$this->execute('jk_jailuser -m -s /bin/bash -j '.$this->dirs['www'].'/'.$user.' '.$user);
 	}
 	

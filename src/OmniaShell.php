@@ -48,6 +48,16 @@ class Omniashell extends OmniaBase
 	}
 	
 	/**
+	 * Delete jailed user
+	 *
+	 */
+	function deleteJailedUser($user)
+	{
+		$this->execute('userdel -r '.$user);
+		$this->execute('rm -rf '.$this->dirs['www'].'/'.$user);
+	}
+	
+	/**
 	 * Create development environment
 	 *
 	 */
@@ -81,6 +91,18 @@ class Omniashell extends OmniaBase
 	
 	function devdelete($user)
 	{
+		// Check input
+		if(!$this->isUser($user))
+			die('User does not exists');
+		
+		// You sure?
+		if(strtolower($this->ask("Are you sure you want to delete the user (n/y)", 'n')) != 'y')
+			die("Not deleting!\n");
+			
 		// Lets delete him!
+		$this->deleteJailedUser($user);
+		$this->shellPostgres->deleteEnvironment($user);
+		
+		printf("User development environment removed!\n");
 	}
 }

@@ -30,5 +30,21 @@ class ShellPostgres extends OmniaBase
 		$this->execute($create);
 		$this->execute($permis);
 	}
+	
+	/**
+	 * Delete environment
+	 *
+	 * Deletes the postgres environment (DESTRUCTIVE)
+	 */
+	function deleteEnvironment($user)
+	{
+		$delete  = 'sudo -i -u postgres psql template1 -f - <<EOT'."\n";
+		$delete .= 'DROP DATABASE IF EXISTS db'.$user.';'."\n";
+		$delete .= 'DROP ROLE IF EXISTS db'.$user.';'."\n";
+		$delete .= 'DROP ROLE IF EXISTS '.$user.';'."\n";
+		$delete .= 'EOT'."\n";
+		
+		$this->execute($delete);
+	}
 
 }

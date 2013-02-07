@@ -36,6 +36,16 @@ class OmniaBase
 	}
 	
 	/**
+	 * Asks a user a question
+	 */
+	protected function ask($question, $defaultValue = false)
+	{
+		echo $question.($defaultValue ? '['.$defaultValue.']' : '').': ';
+		$value = trim(fgets(STDIN));
+		return (empty($value) ? $defaultValue : $value);
+	}
+
+	/**
 	 * Gets Passwd from password
 	 *
 	 * Creates a linux password from the given password

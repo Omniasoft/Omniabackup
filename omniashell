@@ -27,6 +27,9 @@ switch($cmd)
 	case 'devadd':
 		$shell->devadd($user, $args);
 	break;
+	case 'devdelete':
+		$shell->devdelete($user);
+	break;
 	default:
 		printf("Not a valid command, see help.");
 }

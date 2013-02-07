@@ -29,8 +29,6 @@ class OmniaBase
 	{
 		// Capture also STDERR
 		$cmd = $command.' 2>&1';
-		echo $command."\n";
-		return;
 		$this->lastError = `$cmd`;
 		return empty($this->lastError);
 	}

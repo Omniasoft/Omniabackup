@@ -47,7 +47,10 @@ class Omniashell extends OmniaBase
 		$this->execute('jk_jailuser -m -s /bin/bash -j '.$this->dirs['www'].'/'.$user.' '.$user);
 	}
 	
-	// Setuping up an jailed account
+	/**
+	 * Create development environment
+	 *
+	 */
 	function devadd($user, $args)
 	{
 		// Check input
@@ -68,11 +71,5 @@ class Omniashell extends OmniaBase
 		// Create the different parts for this environment
 		$this->addJailedUser($user, $email, $userPassword);
 		$this->shellPostgres->createEnvironment($user, $postgresPassword);
-	}
-	
-	// Installing phpPgAdmin
-	function phpphgadmin()
-	{
-	
 	}
 }

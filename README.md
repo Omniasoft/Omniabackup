@@ -1,4 +1,11 @@
-Omniashell
+Omniasript
 ==========
+PHP shell scripts for managing and backuping up a server
 
-Ruby shell scripts for managing unix server (debian in specefic)
+Omniashell
+----------
+A system for managing the server
+
+Omniabackup
+----------
+A cron like system for managing backup tasks

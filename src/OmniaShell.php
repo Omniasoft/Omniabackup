@@ -91,6 +91,8 @@ class Omniashell extends OmniaBase
 	
 	function createWebDir($user, $project)
 	{
+		$usrDir = $this->dirs['www'].'/'.$user.'/';
+		
 		// Check for the web folder and if not exists create it
 		if(!is_dir($usrDir."web"))
 		{
@@ -110,7 +112,6 @@ class Omniashell extends OmniaBase
 			die("User does not exists\n");
 		
 		$vhostName = $user.'-'.$project;
-		$usrDir = $this->dirs['www'].'/'.$user.'/';
 		
 		// Vhost template
 		$vhost = $this->renderTemplate(array('basedir' => $this->dirs['www'], 'name' => $user, 'group' => $this->group, 'project' => $project), 'virtualhost');

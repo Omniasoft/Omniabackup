@@ -2,6 +2,9 @@
 
 class OmniaBase
 {
+	// Settings
+	private $templateDir = 'templates';
+	
 	// Protected
 	protected $lastError;
 	
@@ -32,7 +35,17 @@ class OmniaBase
 		$cmd = $command.($catchError ? ' 2>&1' : '');
 		echo $cmd."\n"; //return;
 		$this->lastError = trim(`$cmd`);
+		echo $this->lastError."\n";
 		return empty($this->lastError);
+	}
+	
+	protected function renderTemplate($variables, $template)
+	{
+		$file = file_get_contents($this->templateDir.'/'.$template.'.tpl');
+		foreach($variables as $key => $value)
+			$file = str_replace('<%'.$key.'%>', $value, $file);
+		
+		return $file;
 	}
 	
 	/**

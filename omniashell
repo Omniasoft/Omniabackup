@@ -30,6 +30,11 @@ switch($cmd)
 	case 'devdelete':
 		$shell->devdelete($user);
 	break;
+	case 'vhostadd':
+		if(empty($project))
+			die(printf("No project given"));
+		$shell->vhostadd($user, $project);
+	break;
 	default:
 		printf("Not a valid command, see help.");
 }

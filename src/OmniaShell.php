@@ -7,7 +7,7 @@ class Omniashell extends OmniaBase
 	// Settings
 	public $version = '0.0.1';
 	public $group = 'dev';
-	public $dirs = array('www' => '/var/www', 'passwd' => '/etc/passwd');
+	public $dirs = array('www' => '/var/www', 'passwd' => '/etc/passwd', 'vhost' => '/etc/apache2/sites-available');
 	
 	// Extra shells
 	private $shellPostgres;
@@ -46,7 +46,7 @@ class Omniashell extends OmniaBase
 		$this->execute('useradd -m -c \''.$email.'\' -g '.$this->group.' -p \''.$this->getPasswd($password).'\' '.$user);
 		$this->execute('jk_jailuser -m -s /bin/bash -j '.$this->dirs['www'].'/'.$user.' '.$user);
 	}
-	
+		
 	/**
 	 * Delete jailed user
 	 *
@@ -89,11 +89,46 @@ class Omniashell extends OmniaBase
 		printf("User information:\n Username: %s\n Email: %s\n Userpassword: %s\n Postgrespassword: %s\n", $user, $email, $userPassword, $postgresPassword);
 	}
 	
+	function createWebDir($user, $project)
+	{
+		// Check for the web folder and if not exists create it
+		if(!is_dir($usrDir."web"))
+		{
+			$this->execute('mkdir '.$usrDir.'web');
+			$this->execute('chown '.$user.':'.$this->group.' '.$usrDir.'web');
+		}
+		$this->execute('mkdir '.$usrDir.'web/'.$project);
+		$this->execute('chown '.$user.':'.$this->group.' '.$usrDir.'web/'.$project);
+		
+		return $usrDir.'web/'.$project;
+	}
+	
+	function vhostadd($user, $project)
+	{
+		// Check input
+		if(!$this->isUser($user))
+			die("User does not exists\n");
+		
+		$vhostName = $user.'-'.$project;
+		$usrDir = $this->dirs['www'].'/'.$user.'/';
+		
+		// Vhost template
+		$vhost = $this->renderTemplate(array('basedir' => $this->dirs['www'], 'name' => $user, 'group' => $this->group, 'project' => $project), 'virtualhost');
+		
+		// Create dir
+		$projectDir = $this->createWebDir($user, $project);
+		
+		// Save vhost and enable it and restart apache
+		file_put_contents($this->dirs['vhost'].'/'.$vhostName, $vhost);
+		$this->execute('a2ensite '.$vhostName);
+		$this->execute('/etc/init.d/apache2 reload');
+	}
+	
 	function devdelete($user)
 	{
 		// Check input
 		if(!$this->isUser($user))
-			die('User does not exists');
+			die("User does not exists\n");
 		
 		// You sure?
 		if(strtolower($this->ask("Are you sure you want to delete the user (n/y)", 'n')) != 'y')

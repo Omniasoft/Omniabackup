@@ -16,8 +16,8 @@ class ShellPostgres extends OmniaBase
 	{
 		//Create specefic database for the user and give him rights on that only
 		$create  = 'sudo -i -u postgres psql template1 -f - <<EOT'."\n";
-		$create .= 'CREATE ROLE db'.$user.' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;'."\n";
-		$create .= 'CREATE ROLE '.$user.' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN ENCRYPTED PASSWORD \''.$password.'\';'."\n";
+		$create .= 'CREATE ROLE db'.$user.' WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;'."\n";
+		$create .= 'CREATE ROLE '.$user.' WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN PASSWORD \''.$password.'\';'."\n";
 		$create .= 'GRANT db'.$user.' TO '.$user.';'."\n";
 		$create .= 'CREATE DATABASE db'.$user.' WITH OWNER='.$user.';'."\n";
 		$create .= 'REVOKE ALL ON DATABASE db'.$user.' FROM public;'."\n";

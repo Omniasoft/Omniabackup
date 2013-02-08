@@ -46,7 +46,7 @@ class Omniashell extends OmniaBase
 		$root = $this->dirs['www'].'/'.$user;
 		
 		// Create the jail
-		$environments = 'basicshell editors extshellplusnet ssh sftp scp git postgres logbasics';
+		$environments = 'basicshell editors extshellplusnet ssh sftp scp git postgres logbasics php';
 		$this->execute('jk_init -v -j '.$root.' '.$environments);
 		
 		// Create the user and jail it!

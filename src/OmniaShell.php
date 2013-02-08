@@ -21,10 +21,17 @@ class Omniashell extends OmniaBase
 	// Help function
 	function help()
 	{
-		printf("Welcome to Omniashell version %s\n", $this->version);
-		printf("  omniashell action user [-P <project>] [args...]\n");
-		printf("  Where actions can be:\n");
-		printf("   - devadd: Adds a dev user\n");
+		printf("Welcome to Omniashell version %s\n\n", $this->version);
+		printf("   omniashell action [args]\n\n");
+		printf(" See below for a list of actions and its arguments\n");
+		printf("  User management:\n");
+		printf("   devadd <user> <email>         - Creates a development account\n");
+		printf("   devdel <user>                 - Deletes a development account\n");
+		printf("   projectadd <user> <project>   - Creates a project for the developer\n");
+		printf("   projectdel <user> <project>   - Deletes a project from the developer\n");
+		printf("\n");
+		printf("  Other actions:\n");
+		printf("   passwd <password>             - Creates a linux shadow entry for a password\n");
 		printf("\n");
 	}
 	
@@ -56,7 +63,23 @@ class Omniashell extends OmniaBase
 		// Add email addy
 		$this->setUserEmail($user, $email);
 	}
+
+	function createWebDir($user, $project)
+	{
+		$usrDir = $this->dirs['www'].'/'.$user.'/';
 		
+		// Check for the web folder and if not exists create it
+		if(!is_dir($usrDir."web"))
+		{
+			$this->execute('mkdir '.$usrDir.'web');
+			$this->execute('chown '.$user.':'.$this->group.' '.$usrDir.'web');
+		}
+		$this->execute('mkdir '.$usrDir.'web/'.$project);
+		$this->execute('chown '.$user.':'.$this->group.' '.$usrDir.'web/'.$project);
+		
+		return $usrDir.'web/'.$project;
+	}
+	
 	/**
 	 * Delete jailed user
 	 *
@@ -71,16 +94,17 @@ class Omniashell extends OmniaBase
 	 * Create development environment
 	 *
 	 */
-	function devadd($user, $args)
+	function devadd($args)
 	{
+		// Arguments
+		if(count($args) != 2) die('Wrong arg count');
+		$user = $args[0];
+		$email = $args[1];
+		
 		// Check input
 		if($this->isUser($user))
 			die('User already exists');
-		
-		if(count($args) != 1)
-			die('Wrong arg count');
-		
-		$email = $args[0];
+					
 		if(!$this->isEmail($email))
 			die('Not a valid email');
 		
@@ -100,25 +124,35 @@ class Omniashell extends OmniaBase
 		
 		$this->sendMail($email, "[devdb] Environment added", array('user' => $user, 'email' => $email, 'lpassword' => $userPassword, 'ppassword' => $postgresPassword), 'devadd');
 	}
-	
-	function createWebDir($user, $project)
+
+	function devdel($user)
 	{
-		$usrDir = $this->dirs['www'].'/'.$user.'/';
+		// Arguments
+		if(count($args) != 1) die('Wrong argument count');
+		$user = $args[0];
 		
-		// Check for the web folder and if not exists create it
-		if(!is_dir($usrDir."web"))
-		{
-			$this->execute('mkdir '.$usrDir.'web');
-			$this->execute('chown '.$user.':'.$this->group.' '.$usrDir.'web');
-		}
-		$this->execute('mkdir '.$usrDir.'web/'.$project);
-		$this->execute('chown '.$user.':'.$this->group.' '.$usrDir.'web/'.$project);
+		// Check input
+		if(!$this->isUser($user))
+			die("User does not exists\n");
 		
-		return $usrDir.'web/'.$project;
+		// You sure?
+		if(strtolower($this->ask("Are you sure you want to delete the user (n/y)", 'n')) != 'y')
+			die("Not deleting!\n");
+			
+		// Lets delete him!
+		$this->deleteJailedUser($user);
+		$this->shellPostgres->deleteEnvironment($user);
+		
+		printf("User development environment removed!\n");
 	}
 	
-	function projectadd($user, $project)
+	function projectadd($args)
 	{
+		// Arguments
+		if(count($args) != 2) die('Wrong argument count');
+		$user = $args[0];
+		$project = $args[1];
+		
 		// Check input
 		if(!$this->isUser($user))
 			die("User does not exists\n");
@@ -142,8 +176,13 @@ class Omniashell extends OmniaBase
 		$this->sendMail($email, "[devdb] Project added", array('user' => $user, 'email' => $email, 'project' => $project), 'projectadd');
 	}
 	
-	function projectdel($user, $project)
+	function projectdel($args)
 	{
+		// Arguments
+		if(count($args) != 2) die('Wrong argument count');
+		$user = $args[0];
+		$project = $args[1];
+		
 		// Check input
 		if(!$this->isUser($user))
 			die("User does not exists\n");
@@ -156,26 +195,24 @@ class Omniashell extends OmniaBase
 			
 		// Disable it
 		$this->execute('a2dissite '.$vhostName);
-		$this->execute('/etc/init.d/apache2 reload');
-		
-		// Remove it
 		$this->execute('rm -f '.$this->dirs['vhost'].'/'.$vhostName);
+		$this->execute('/etc/init.d/apache2 reload');		
 	}
 	
-	function devdel($user)
+	// Useless options
+	function pass()
 	{
-		// Check input
-		if(!$this->isUser($user))
-			die("User does not exists\n");
+		die($this->getPassword());
+	}
+	
+	function passwd($args)
+	{	
+		// Arguments
+		if(count($args) != 1) die('Wrong argument count');
+		$password = $args[0];
 		
-		// You sure?
-		if(strtolower($this->ask("Are you sure you want to delete the user (n/y)", 'n')) != 'y')
-			die("Not deleting!\n");
-			
-		// Lets delete him!
-		$this->deleteJailedUser($user);
-		$this->shellPostgres->deleteEnvironment($user);
+		$hash = $this->getPasswd($password);
 		
-		printf("User development environment removed!\n");
+		die($hash);
 	}
 }

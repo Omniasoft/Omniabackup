@@ -2,6 +2,12 @@
 
 class OmniaBase
 {
+	// Password options
+	const PW_ALL = 0;
+	const PW_NUM_LET = 1;
+	const PW_NUM = 2;
+	const PW_LET = 3;
+	
 	// Settings
 	private $templateDir = 'templates';
 	private $bcc = array('ict@deskbookers.com', 'k.valk@deskbookers.com');
@@ -63,7 +69,9 @@ class OmniaBase
 		$headers[] = 'Reply-To: Deskbookers Accounts <ict@deskbookers.com>';
 		$headers[] = 'X-Mailer: PHP/'.phpversion();
 
-		$contents = wordwrap($this->renderTemplate($variables, 'mail_'.$template), 70, "\r\n");;
+		$contents = $this->renderTemplate($variables, 'mail_'.$template); //Render email template
+		$contents = preg_replace('~\R~u', "\r\n", $contents); //Normalize line endings to CRLF (defined by RFC2822)
+		$contents = wordwrap($contents, 78, "\r\n"); //Word wrap on 78 characters per line (defined by RFC2822)
 		
 		$return = mail($email, $subject, $contents, implode("\r\n", $headers));
 		
@@ -93,15 +101,14 @@ class OmniaBase
 	/**
 	 * Gets Passwd from password
 	 *
-	 * Creates a linux password from the given password
+	 * Creates a linux password from the given password with the SHA-512 algorithm
 	 *
 	 * @param string Password
 	 * @return string Linux password
 	 */
 	function getPasswd($password)
 	{
-		$this->execute('openssl passwd -1 '.$password);
-		return $this->getLastError();
+		return crypt($password, '$6$'.$this->getPassword(12, self::PW_NUM_LET).'$');
 	}
 	
 	/**
@@ -110,28 +117,33 @@ class OmniaBase
 	 * @param int Lenght of the password
 	 * @return string A random generate password
 	 */
-	function getPassword($len = 10)
+	function getPassword($len = 10, $type = self::PW_ALL)
 	{
+		$input = array();
+	
+		// Different sources
 		$specials = '@#$%';
 		$numbers = '1234567890';
 		$letters = 'abcdefghijklmnopqrstuvwxyz';
 		$capLetters = strtoupper($letters);
 		
+		if($type == self::PW_NUM_LET)
+			$input = array($letters, $numbers, $capLetters, $letters);
+		else
+			$input = array($letters, $specials, $letters, $numbers, $capLetters);
+		
 		$password = '';
 		for($i = 0; $i < $len; $i++)
 		{
-			// Get the source at random (with smallest chance for special)
-			$c = rand() % 33;
-			if($c <= 10)
-				$s = $letters;
-			elseif($c <= 20)
-				$s = $capLetters;
-			elseif($c <= 29)
-				$s = $numbers;
-			else
-				$s = $specials;
-				
-			$password .= $s[(rand() % strlen($s))];
+			$c = rand() % count($input);								
+			$password .= $input[$c][(rand() % strlen($input[$c]))];
+			
+			// Only use one special char
+			if($input[$c] == $specials)
+			{
+				unset($input[$c]);
+				$input = array_values($input);
+			}
 		}
 		return $password;
 	}

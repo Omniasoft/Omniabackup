@@ -3,8 +3,8 @@ Hello Sir/Madam,
 We have created a project for you for development.
 
 Project information:
-  Web address: <%project%>.<%name%>.devdb.nl
-  Linux directory: /var/www/<%name%>/web/<%project%>
+  Web address: <%project%>.<%user%>.devdb.nl
+  Linux directory: /var/www/<%user%>/web/<%project%>
   
 Important addresses:
   phpPgAdmin: postgres.devdb.nl

@@ -44,12 +44,12 @@ class OmniaBase
 	
 	protected function getUserEmail($user)
 	{
-		return file_get_contents($dirs['www'].'/'.$user.'/email');
+		return file_get_contents($this->dirs['www'].'/'.$user.'/email');
 	}
 	
 	protected function setUserEmail($user, $email)
 	{
-		file_put_contents($dirs['www'].'/'.$user.'/email', $email);
+		file_put_contents($this->dirs['www'].'/'.$user.'/email', $email);
 	}
 	
 	protected function sendMail($email, $subject, $variables, $template)
@@ -79,7 +79,7 @@ class OmniaBase
 	 */
 	protected function ask($question, $defaultValue = false)
 	{
-		echo $question.($defaultValue ? '['.$defaultValue.']' : '').': ';
+		echo $question.($defaultValue ? ' ['.$defaultValue.']' : '').': ';
 		$value = trim(fgets(STDIN));
 		return (empty($value) ? $defaultValue : $value);
 	}

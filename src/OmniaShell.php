@@ -46,6 +46,9 @@ class Omniashell extends OmniaBase
 		
 		// Add the log folder
 		$this->execute('mkdir '.$this->dirs['www'].'/'.$user.'/logs');
+		
+		// Add email addy
+		$this->setUserEmail($user, $email);
 	}
 		
 	/**
@@ -141,6 +144,10 @@ class Omniashell extends OmniaBase
 		
 		$vhostName = $user.'-'.$project;
 		
+		// You sure?
+		if(strtolower($this->ask("Are you sure you want to delete the project (n/y)", 'n')) != 'y')
+			die("Not deleting!\n");
+			
 		// Disable it
 		$this->execute('a2dissite '.$vhostName);
 		$this->execute('/etc/init.d/apache2 reload');
@@ -149,7 +156,7 @@ class Omniashell extends OmniaBase
 		$this->execute('rm -f '.$this->dirs['vhost'].'/'.$vhostName);
 	}
 	
-	function devdelete($user)
+	function devdel($user)
 	{
 		// Check input
 		if(!$this->isUser($user))

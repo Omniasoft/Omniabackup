@@ -27,8 +27,8 @@ switch($cmd)
 	case 'devadd':
 		$shell->devadd($user, $args);
 	break;
-	case 'devdelete':
-		$shell->devdelete($user);
+	case 'devdel':
+		$shell->devdel($user);
 	break;
 	case 'projectadd':
 		if(empty($project))

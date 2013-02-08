@@ -14,7 +14,10 @@ class ShellPostgres extends OmniaBase
 	 */
 	function createEnvironment($user, $password)
 	{
-		//Create specefic database for the user and give him rights on that only
+		// Escape dollars
+		$password = str_replace('$', '\\$', $password);
+	
+		// Create specefic database for the user and give him rights on that only
 		$create  = 'sudo -i -u postgres psql template1 -f - <<EOT'."\n";
 		$create .= 'CREATE ROLE db'.$user.' WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;'."\n";
 		$create .= 'CREATE ROLE '.$user.' WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN PASSWORD \''.$password.'\';'."\n";

@@ -65,7 +65,9 @@ class OmniaBase
 
 		$contents = wordwrap($this->renderTemplate($variables, 'mail_'.$template), 70, "\r\n");;
 		
-		mail($email, $subject, $contents, implode("\r\n", $headers));
+		$return = mail($email, $subject, $contents, implode("\r\n", $headers));
+		
+		printf("Sended a mail with ret: %d, to: %s\n", $return, $email);
 		
 	}
 	

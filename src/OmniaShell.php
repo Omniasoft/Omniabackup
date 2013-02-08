@@ -35,16 +35,23 @@ class Omniashell extends OmniaBase
 	 */
 	function addJailedUser($user, $email, $password)
 	{	
+		$root = $this->dirs['www'].'/'.$user;
+		
 		// Create the jail
 		$environments = 'basicshell editors extshellplusnet ssh sftp scp git postgres logbasics';
-		$this->execute('jk_init -v -j '.$this->dirs['www'].'/'.$user.' '.$environments);
+		$this->execute('jk_init -v -j '.$root.' '.$environments);
 		
 		// Create the user and jail it!
 		$this->execute('useradd -m -c \''.$email.'\' -g '.$this->group.' -p \''.$this->getPasswd($password).'\' '.$user);
-		$this->execute('jk_jailuser -m -s /bin/bash -j '.$this->dirs['www'].'/'.$user.' '.$user);
+		$this->execute('jk_jailuser -m -s /bin/bash -j '.$root.' '.$user);
 		
-		// Add the log folder
-		$this->execute('mkdir '.$this->dirs['www'].'/'.$user.'/logs');
+		// Add some extra folders
+		$this->execute('mkdir '.$root.'/logs');
+		$this->execute('mkdir '.$root.'/tmp');
+		$this->execute('mkdir '.$root.'/opt');
+		
+		// Fix permissions
+		$this->execute('chmod a+rwx '.$root.'/tmp');
 		
 		// Add email addy
 		$this->setUserEmail($user, $email);

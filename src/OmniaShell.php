@@ -126,7 +126,7 @@ class Omniashell extends OmniaBase
 		$this->sendMail($email, "[devdb] Environment added", array('user' => $user, 'email' => $email, 'lpassword' => $userPassword, 'ppassword' => $postgresPassword), 'devadd');
 	}
 
-	function devdel($user)
+	function devdel($args)
 	{
 		// Arguments
 		if(count($args) != 1) die("Wrong argument count\n");
@@ -171,6 +171,9 @@ class Omniashell extends OmniaBase
 		$this->execute('a2ensite '.$vhostName);
 		$this->execute('/etc/init.d/apache2 reload');
 		
+		// Postgres
+		$this->shellPostgres->createScheme($user, $project);
+		
 		$email = $this->getUserEmail($user);
 		
 		// Info this user
@@ -197,7 +200,10 @@ class Omniashell extends OmniaBase
 		// Disable it
 		$this->execute('a2dissite '.$vhostName);
 		$this->execute('rm -f '.$this->dirs['vhost'].'/'.$vhostName);
-		$this->execute('/etc/init.d/apache2 reload');		
+		$this->execute('/etc/init.d/apache2 reload');
+
+		// Postgres
+		$this->shellPostgres->deleteScheme($user, $project);
 	}
 	
 	// Useless options

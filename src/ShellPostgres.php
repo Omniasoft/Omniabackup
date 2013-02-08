@@ -46,5 +46,22 @@ class ShellPostgres extends OmniaBase
 		
 		$this->execute($delete);
 	}
-
+	
+	function createScheme($user, $project)
+	{
+		$create  = 'sudo -i -u postgres psql db'.$user.' -f - <<EOT'."\n";
+		$create .= 'CREATE SCHEMA '.$project.' AUTHORIZATION '.$user.';'."\n";
+		$create .= 'EOT'."\n";
+		
+		$this->execute($create);
+	}
+	
+	function deleteScheme($user, $project)
+	{
+		$delete  = 'sudo -i -u postgres psql db'.$user.' -f - <<EOT'."\n";
+		$delete .= 'DROP SCHEMA IF EXISTS '.$project.' CASCADE;'."\n";
+		$delete .= 'EOT'."\n";
+		
+		$this->execute($delete);
+	}
 }

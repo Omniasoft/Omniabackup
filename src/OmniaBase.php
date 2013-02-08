@@ -54,14 +54,18 @@ class OmniaBase
 	
 	protected function sendMail($email, $subject, $variables, $template)
 	{
-		// Make header
-		$headers  = 'From: Deskbookers Accounts <ict@deskbookers.com>' . "\r\n";
-		$headers .= 'Reply-To: Deskbookers Accounts <ict@deskbookers.com>' . "\r\n" .
-		$headers .= 'Bcc: '.implode(' ', $this->bcc) . "\r\n";
+		// Make header		
+		$headers   = array();
+		$headers[] = 'MIME-Version: 1.0';
+		$headers[] = 'Content-type: text/plain; charset=iso-8859-1';
+		$headers[] = 'From: Deskbookers Accounts <ict@deskbookers.com>';
+		$headers[] = 'Bcc: '.implode(' ', $this->bcc);
+		$headers[] = 'Reply-To: Deskbookers Accounts <ict@deskbookers.com>';
+		$headers[] = 'X-Mailer: PHP/'.phpversion();
+
+		$contents = wordwrap($this->renderTemplate($variables, 'mail_'.$template), 70, "\r\n");;
 		
-		$contents = $this->renderTemplate($variables, 'mail_'.$template);
-		
-		mail($email, $subject, $contents, $headers);
+		mail($email, $subject, $contents, implode("\r\n", $headers));
 		
 	}
 	

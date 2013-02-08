@@ -36,7 +36,7 @@ class Omniashell extends OmniaBase
 	function addJailedUser($user, $email, $password)
 	{	
 		// Create the jail
-		$environments = 'basicshell editors extshellplusnet ssh sftp scp git postgres logbasics userutils';
+		$environments = 'basicshell editors extshellplusnet ssh sftp scp git postgres logbasics';
 		$this->execute('jk_init -v -j '.$this->dirs['www'].'/'.$user.' '.$environments);
 		
 		// Create the user and jail it!

@@ -31,6 +31,7 @@ class Omniashell extends OmniaBase
 		printf("   projectdel <user> <project>   - Deletes a project from the developer\n");
 		printf("\n");
 		printf("  Other actions:\n");
+		printf("   pass                          - Generates a random password of lenght 10\n");
 		printf("   passwd <password>             - Creates a linux shadow entry for a password\n");
 		printf("\n");
 	}
@@ -97,16 +98,16 @@ class Omniashell extends OmniaBase
 	function devadd($args)
 	{
 		// Arguments
-		if(count($args) != 2) die('Wrong arg count');
+		if(count($args) != 2) die("Wrong arg count\n");
 		$user = $args[0];
 		$email = $args[1];
 		
 		// Check input
 		if($this->isUser($user))
-			die('User already exists');
+			die("User already exists\n");
 					
 		if(!$this->isEmail($email))
-			die('Not a valid email');
+			die("Not a valid email\n");
 		
 		// Run this
 		printf("Making this development account (warning this will take some time)\n");
@@ -128,7 +129,7 @@ class Omniashell extends OmniaBase
 	function devdel($user)
 	{
 		// Arguments
-		if(count($args) != 1) die('Wrong argument count');
+		if(count($args) != 1) die("Wrong argument count\n");
 		$user = $args[0];
 		
 		// Check input
@@ -149,7 +150,7 @@ class Omniashell extends OmniaBase
 	function projectadd($args)
 	{
 		// Arguments
-		if(count($args) != 2) die('Wrong argument count');
+		if(count($args) != 2) die("Wrong argument count\n");
 		$user = $args[0];
 		$project = $args[1];
 		
@@ -179,7 +180,7 @@ class Omniashell extends OmniaBase
 	function projectdel($args)
 	{
 		// Arguments
-		if(count($args) != 2) die('Wrong argument count');
+		if(count($args) != 2) die("Wrong argument count\n");
 		$user = $args[0];
 		$project = $args[1];
 		
@@ -202,17 +203,17 @@ class Omniashell extends OmniaBase
 	// Useless options
 	function pass()
 	{
-		die($this->getPassword());
+		die($this->getPassword()."\n");
 	}
 	
 	function passwd($args)
 	{	
 		// Arguments
-		if(count($args) != 1) die('Wrong argument count');
+		if(count($args) != 1) die("Wrong argument count\n");
 		$password = $args[0];
 		
 		$hash = $this->getPasswd($password);
 		
-		die($hash);
+		die($hash."\n");
 	}
 }

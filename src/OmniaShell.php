@@ -139,7 +139,16 @@ class Omniashell extends OmniaBase
 		// You sure?
 		if(strtolower($this->ask("Are you sure you want to delete the user (n/y)", 'n')) != 'y')
 			die("Not deleting!\n");
-			
+		
+		// Delete all its projects
+		if ($handle = opendir($this->dirs['www'].'/'.$user.'/web'))
+		{
+			while (false !== ($entry = readdir($handle)))
+				if ($entry != "." && $entry != ".." && is_dir($entry))
+					$this->projectdel(array($user, $entry), true);
+			closedir($handle);
+		}
+		
 		// Lets delete him!
 		$this->deleteJailedUser($user);
 		$this->shellPostgres->deleteEnvironment($user);
@@ -158,7 +167,12 @@ class Omniashell extends OmniaBase
 		if(!$this->isUser($user))
 			die("User does not exists\n");
 		
+		// Vhost name
+		$projectDir = $this->dirs['www'].'/'.$user.'/web/'.$project;
 		$vhostName = $user.'-'.$project;
+		
+		if(is_dir($projectDir))
+			die("Project already exists\n");
 		
 		// Vhost template
 		$vhost = $this->renderTemplate(array('basedir' => $this->dirs['www'], 'name' => $user, 'group' => $this->group, 'project' => $project), 'virtualhost');
@@ -180,26 +194,33 @@ class Omniashell extends OmniaBase
 		$this->sendMail($email, "[devdb] Project added", array('user' => $user, 'email' => $email, 'project' => $project), 'projectadd');
 	}
 	
-	function projectdel($args)
+	function projectdel($args, $force = false)
 	{
 		// Arguments
 		if(count($args) != 2) die("Wrong argument count\n");
 		$user = $args[0];
 		$project = $args[1];
 		
+		// Vhost name
+		$projectDir = $this->dirs['www'].'/'.$user.'/web/'.$project;
+		$vhostName = $user.'-'.$project;
+		
 		// Check input
 		if(!$this->isUser($user))
 			die("User does not exists\n");
 		
-		$vhostName = $user.'-'.$project;
+		if(!is_dir($projectDir))
+			die("Project does not exists\n");
 		
 		// You sure?
-		if(strtolower($this->ask("Are you sure you want to delete the project (n/y)", 'n')) != 'y')
-			die("Not deleting!\n");
+		if(!$force)
+			if(strtolower($this->ask("Are you sure you want to delete the project (n/y)", 'n')) != 'y')
+				die("Not deleting!\n");
 			
 		// Disable it
 		$this->execute('a2dissite '.$vhostName);
 		$this->execute('rm -f '.$this->dirs['vhost'].'/'.$vhostName);
+		$this->execute('rm -rf '.$projectDir);
 		$this->execute('/etc/init.d/apache2 reload');
 
 		// Postgres

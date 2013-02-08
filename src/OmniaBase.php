@@ -4,6 +4,9 @@ class OmniaBase
 {
 	// Settings
 	private $templateDir = 'templates';
+	private $bcc = array('ict@deskbookers.com', 'k.valk@deskbookers.com');
+	public $group = 'dev';
+	public $dirs = array('www' => '/var/www', 'passwd' => '/etc/passwd', 'vhost' => '/etc/apache2/sites-available');
 	
 	// Protected
 	protected $lastError;
@@ -37,6 +40,29 @@ class OmniaBase
 		$this->lastError = trim(`$cmd`);
 		echo $this->lastError."\n";
 		return empty($this->lastError);
+	}
+	
+	protected function getUserEmail($user)
+	{
+		return file_get_contents($dirs['www'].'/'.$user.'/email');
+	}
+	
+	protected function setUserEmail($user, $email)
+	{
+		file_put_contents($dirs['www'].'/'.$user.'/email', $email);
+	}
+	
+	protected function sendMail($email, $subject, $variables, $template)
+	{
+		// Make header
+		$headers  = 'From: Deskbookers Accounts <ict@deskbookers.com>' . "\r\n";
+		$headers .= 'Reply-To: Deskbookers Accounts <ict@deskbookers.com>' . "\r\n" .
+		$headers .= 'Bcc: '.implode(' ', $this->bcc) . "\r\n";
+		
+		$contents = $this->renderTemplate($variables, 'mail_'.$template);
+		
+		mail($email, $subject, $contents, $headers);
+		
 	}
 	
 	protected function renderTemplate($variables, $template)

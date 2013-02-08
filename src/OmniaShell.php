@@ -5,9 +5,7 @@ include_once('OmniaBase.php');
 class Omniashell extends OmniaBase
 {
 	// Settings
-	public $version = '0.0.1';
-	public $group = 'dev';
-	public $dirs = array('www' => '/var/www', 'passwd' => '/etc/passwd', 'vhost' => '/etc/apache2/sites-available');
+	public $version = '0.0.5';
 	
 	// Extra shells
 	private $shellPostgres;
@@ -45,6 +43,9 @@ class Omniashell extends OmniaBase
 		// Create the user and jail it!
 		$this->execute('useradd -m -c \''.$email.'\' -g '.$this->group.' -p \''.$this->getPasswd($password).'\' '.$user);
 		$this->execute('jk_jailuser -m -s /bin/bash -j '.$this->dirs['www'].'/'.$user.' '.$user);
+		
+		// Add the log folder
+		$this->execute('mkdir '.$this->dirs['www'].'/'.$user.'/logs');
 	}
 		
 	/**
@@ -87,6 +88,8 @@ class Omniashell extends OmniaBase
 		
 		// Report information
 		printf("User information:\n Username: %s\n Email: %s\n Userpassword: %s\n Postgrespassword: %s\n", $user, $email, $userPassword, $postgresPassword);
+		
+		$this->sendMail($email, "[devdb] Environment added", array('user' => $user, 'email' => $email, 'lpassword' => $userPassword, 'ppassword' => $postgresPassword), 'devadd');
 	}
 	
 	function createWebDir($user, $project)
@@ -105,7 +108,7 @@ class Omniashell extends OmniaBase
 		return $usrDir.'web/'.$project;
 	}
 	
-	function vhostadd($user, $project)
+	function projectadd($user, $project)
 	{
 		// Check input
 		if(!$this->isUser($user))
@@ -123,6 +126,27 @@ class Omniashell extends OmniaBase
 		file_put_contents($this->dirs['vhost'].'/'.$vhostName, $vhost);
 		$this->execute('a2ensite '.$vhostName);
 		$this->execute('/etc/init.d/apache2 reload');
+		
+		$email = $this->getUserEmail($user);
+		
+		// Info this user
+		$this->sendMail($email, "[devdb] Project added", array('user' => $user, 'email' => $email, 'project' => $project), 'projectadd');
+	}
+	
+	function projectdel($user, $project)
+	{
+		// Check input
+		if(!$this->isUser($user))
+			die("User does not exists\n");
+		
+		$vhostName = $user.'-'.$project;
+		
+		// Disable it
+		$this->execute('a2dissite '.$vhostName);
+		$this->execute('/etc/init.d/apache2 reload');
+		
+		// Remove it
+		$this->execute('rm -f '.$this->dirs['vhost'].'/'.$vhostName);
 	}
 	
 	function devdelete($user)

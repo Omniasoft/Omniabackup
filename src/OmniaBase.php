@@ -44,7 +44,7 @@ class OmniaBase
 		$cmd = $command.($catchError ? ' 2>&1' : '');
 		//echo $cmd."\n"; //return;
 		$this->lastError = trim(`$cmd`);
-		echo $this->lastError."\n";
+		//echo $this->lastError."\n";
 		return empty($this->lastError);
 	}
 	

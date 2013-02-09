@@ -42,7 +42,7 @@ class OmniaBase
 	{
 		// Capture also STDERR
 		$cmd = $command.($catchError ? ' 2>&1' : '');
-		echo $cmd."\n"; //return;
+		//echo $cmd."\n"; //return;
 		$this->lastError = trim(`$cmd`);
 		echo $this->lastError."\n";
 		return empty($this->lastError);
@@ -135,7 +135,7 @@ class OmniaBase
 		$password = '';
 		for($i = 0; $i < $len; $i++)
 		{
-			$c = rand() % count($input);								
+			$c = rand() % count($input);
 			$password .= $input[$c][(rand() % strlen($input[$c]))];
 			
 			// Only use one special char

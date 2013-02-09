@@ -141,11 +141,12 @@ class Omniashell extends OmniaBase
 			die("Not deleting!\n");
 		
 		// Delete all its projects
-		if ($handle = opendir($this->dirs['www'].'/'.$user.'/web'))
+		if($handle = opendir($this->dirs['www'].'/'.$user.'/web'))
 		{
-			while (false !== ($entry = readdir($handle)))
-				if ($entry != "." && $entry != ".." && is_dir($entry))
-					$this->projectdel(array($user, $entry), true);
+			while(false !== ($entry = readdir($handle)))
+				if($entry != "." && $entry != "..")
+					if(is_dir($entry))
+						$this->projectdel(array($user, basename($entry)), true);
 			closedir($handle);
 		}
 		

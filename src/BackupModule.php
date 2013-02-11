@@ -1,7 +1,7 @@
 <?php
 include('BackupModules/Modules.php');
 
-abstract class BackupModule
+abstract class BackupModule extends OmniaBase
 {
 	// Publics
 	public $name;
@@ -9,7 +9,6 @@ abstract class BackupModule
 
 	// Protecteds
 	protected $configFile;
-	protected $lastError;
 	
 	// Privates
 	private $configCache = null;
@@ -58,34 +57,6 @@ abstract class BackupModule
 		
 		// Return output
 		return $tmp;
-	}
-	
-	/**
-	 * Gets the last message of a execute call
-	 *
-	 * @return string Output of the last executed command
-	 */
-	public function getLastError()
-	{
-		if(empty($this->lastError))
-			return "Unknown";
-		return $this->lastError;
-	}
-	
-	/**
-	 * Execute a shell command
-	 *
-	 * And redirects errors to the return of this function
-	 *
-	 * @param string The linux command
-	 * @return bool True if the command had no output and false otherwise
-	 */
-	protected function execute($command)
-	{
-		// Capture also STDERR
-		$cmd = $command.' 2>&1';		
-		$this->lastError = `$cmd`;
-		return empty($this->lastError);
 	}
 	
 	/**

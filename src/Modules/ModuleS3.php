@@ -55,6 +55,60 @@ class ModuleS3 extends Module
 	}
 	
 	/**
+	 * Cleans a bucket
+	 *
+	 * Removes all files that have EOL expired
+	 *
+	 * @return int Number of files to remove
+	 */
+	function cleanBucket($bucket)
+	{
+		$fileNo = 0;
+		$objects = $this->s3->getBucket($bucket);
+		foreach($objects as &$object)
+			$fileNo += $this->cleanFile( (object) $object, $bucket);
+		return $fileNo;
+	}
+	
+	/**
+	 * Gets the end of life timestamp for an object
+	 *
+	 * @param object $object S3 Object
+	 *
+	 * @return bool|int
+	 */
+	function getEndOfLife($object)
+	{
+		$n = end(explode('/', $object->name));
+		
+		// Check if empty
+		if (empty($n))
+			return false;
+		
+		// Extract TTL			
+		if (preg_match('/^L([0-9]+)_/', $n, $matches))
+			return (intval($matches[1]) * 24 * 60 * 60) + $object->time;	
+		return false;		
+	}
+	
+	/**
+	 * Cleans a object from S3
+	 *
+	 * @param object $object S3 Object
+	 * @param string $bucket S3 Bucket
+	 * 
+	 * @return int 1 if file removed, 0 else
+	 */
+	function cleanFile($object, $bucket)
+	{
+		$eol = $this->getEndOfLife($object);
+		if ($eol !== false)
+			if ($this->s3->deleteObject($bucket, $object->name))
+				return 1;
+		return 0;
+	}
+	
+	/**
 	 * Run this module
 	 *
 	 * @param array Arguments for this function
@@ -62,8 +116,22 @@ class ModuleS3 extends Module
 	 */
 	function run()
 	{		
+		// Check for cleanup mode
+		if ($this->getCmd('cleanup'))
+		{
+			// Not enough args
+			if ($this->getCmdNo() < 1)
+				throw new Exception('Not enough arguments');
+				
+			printf("\t\tCleaning....\n");
+			foreach ($this->getCmds() as $bucket)
+				printf("\t\t  cleaned %d files from %s\n", $this->cleanBucket($bucket), $bucket);
+				
+			return;
+		}
+		
 		// Not enough args
-		if($this->getCmdNo() < 3)
+		if ($this->getCmdNo() < 3)
 			throw new Exception('Not enough arguments');
 		
 		// Rest variables parser
@@ -75,7 +143,7 @@ class ModuleS3 extends Module
 		$paths = $this->getCmds(2);
 		
 		// Implicit f flag
-		if(count($paths) == 1 && is_file($paths[0]))
+		if (count($paths) == 1 && is_file($paths[0]))
 			$fileOnly = true;
 				
 		// Create the archive

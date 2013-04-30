@@ -102,9 +102,9 @@ class ModuleS3 extends Module
 	function cleanFile($object, $bucket)
 	{
 		$eol = $this->getEndOfLife($object);
-		if ($eol !== false)
-			if ($this->s3->deleteObject($bucket, $object->name))
-				return 1;
+		if ($eol !== false && $eol < time())
+				if ($this->s3->deleteObject($bucket, $object->name))
+					return 1;
 		return 0;
 	}
 	

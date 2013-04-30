@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 // Includes
-require_once('/vendor/autoload.php');
+require_once('vendor/autoload.php');
 include('src/OmniaBackup.php');
 
 // TODO: Mutex

@@ -1,7 +1,6 @@
 <?php
-include('BackupModules/Modules.php');
 
-abstract class BackupModule extends OmniaBase
+abstract class Module extends OmniaBase
 {
 	// Publics
 	public $name;
@@ -92,21 +91,5 @@ abstract class BackupModule extends OmniaBase
 		}
 		
 		return (array_key_exists($key, $this->configCache) ? $this->configCache[$key] : null);
-	}
-
-	/**
-	 * Gets the correct module from a module name
-	 * 
-	 * @param string Name of the module
-	 * @return BackupModule The module for name type
-	 */
-	static public function getModule($name)
-	{
-		switch(strtolower($name))
-		{
-			case 's3': return new ModuleS3();
-			case 's3postgres': return new ModuleS3Postgres();
-			default: return null;
-		}
 	}
 }

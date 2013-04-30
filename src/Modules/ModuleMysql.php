@@ -6,7 +6,7 @@
  * -p <path>    The bucked path
  * -l <n>       The number of days to live
  */
-class ModuleMysql extends BackupModule
+class ModuleMysql extends Module
 {
 	public $name = 'mysql';
 	

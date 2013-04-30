@@ -6,8 +6,14 @@
  * -p <path>    The bucked path
  * -l <n>       The number of days to live
  */
-class ModuleS3Postgres extends ModuleS3
+class ModuleS3Postgres extends Module
 {
+	/**
+	 * Constants
+	 */
+	const LIFE_MONTH = 31;
+	
+	// My name
 	public $name = 's3postgres';
 	
 	/**

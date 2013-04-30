@@ -1,9 +1,10 @@
 #!/usr/bin/php
 <?php
-// Include
+// Includes
+require_once('/vendor/autoload.php');
 include('src/OmniaBackup.php');
 
-// TODO: We should make sure this script does not run more then once on the same minute
+// TODO: Mutex
 
 // Create the backup and let it figure the rest out
 $backup = new Omniabackup();

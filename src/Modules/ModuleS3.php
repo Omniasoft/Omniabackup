@@ -1,6 +1,4 @@
 <?php
-if(!class_exists('S3')) require_once('lib/amazon-s3/S3.php');
-
 /**
  * Life cycle rules
  * In the bucket you should set up rules like LX_ where X is the mount of days after which the object expires
@@ -15,7 +13,7 @@ if(!class_exists('S3')) require_once('lib/amazon-s3/S3.php');
  * -l <n>       The number of days to live
  * -w <path>	Change the working directory of tar (TODO)
  */
-class ModuleS3 extends BackupModule
+class ModuleS3 extends Module
 {
 	// Lifetimes
 	const LIFE_DAY = 1;

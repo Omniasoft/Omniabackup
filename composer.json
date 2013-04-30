@@ -1,0 +1,7 @@
+{
+    "require": {
+        "mtdowling/cron-expression": "1.0.*"
+		"oyatel/amazon-s3-php-class": "dev-master"
+		"linkorb/transip-php": "4.1"
+    }
+}

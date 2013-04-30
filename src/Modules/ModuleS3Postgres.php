@@ -6,16 +6,8 @@
  * -p <path>    The bucked path
  * -l <n>       The number of days to live
  */
-class ModuleS3Postgres extends Module
-{
-	/**
-	 * Constants
-	 */
-	const LIFE_MONTH = 31;
-	
-	// My name
-	public $name = 's3postgres';
-	
+class ModuleS3Postgres extends ModuleS3
+{		
 	/**
 	 * Dump and compress the database
 	 *
@@ -24,12 +16,17 @@ class ModuleS3Postgres extends Module
 	function getDatabaseDump()
 	{
 		// Execute the shell
-		$sql = $this->getTmpFile('dump.sql');
-		if(!$this->execute('sudo -u postgres touch '.$sql))
-			return false;		
-		if(!$this->execute('sudo -u postgres pg_dumpall -f '.$sql.' -o'))
-			return false;
-				
+		$sql = $this->getTmpFile('Fulldump_'.date('d-m-Y_H-i').'.sql');
+		
+		// Make tmp postgres file
+		$this->execute('sudo -u postgres touch '.$sql);
+		if ( ! file_exists($sql))
+			throw new Exception('Unable to touch file');
+		
+		$this->execute('sudo -u postgres pg_dumpall -f '.$sql.' -o');
+		if (filesize($sql) <= 0)
+			throw new Exception('Something wrong with database dump (zero filesize)');
+
 		// Compress
 		$archive = $this->compress(array($sql), true);
 		
@@ -44,49 +41,25 @@ class ModuleS3Postgres extends Module
 	 * @param array Arguments for this function
 	 * @return bool True on success False otherwise
 	 */
-	function run($args)
+	function run()
 	{
-		printf("Executing job S3Postgres\n");
-				
-		// Default values for flags
-		$dir = null;
-		$life = self::LIFE_MONTH;
-		
-		// Parse the optional flags
-		$c = count($args);
-		for($i = 0; $i < $c; $i++)
-		{
-			$arg = &$args[$i]; 
-			if($arg[0] == '-')
-			{
-				$t = $i;
-				switch($arg[1])
-				{
-					case 'p': $dir = $args[++$i]; $a=2; break;
-					case 'l': $life = intval($args[++$i]); $a=2; break;
-					default: $a=1; break;
-				}
-				for($z = $t; $z < $t+$a; $z++)
-					unset($args[$z]);
-			}
-		}
-		$args = array_values($args);
-		
 		// Not enough args
-		if(count($args) < 2)
-			return false;
+		if($this->getCmdNo() < 2)
+			throw new Exception('Not enough arguments');
 			
-		// Rest variables parser
-		$bucket = $args[0];
-		$name = $args[1];
+		// Get variables
+		$path = $this->getCmd('p', null);
+		$life = $this->getCmd('l', self::LIFE_MONTH);
+		$bucket = $this->getCmd(0);
+		$name = $this->getCmd(1);
 		
 		// Dump the postgres database
 		$file = $this->getDatabaseDump();
 		if(!$file)
-			return false;
+			throw new Exception('Failed to dump the database');
 		
 		// Back this shit up
-		$upload = $this->backupFile($name, $file, $bucket, $dir, $life);
+		$upload = $this->backupFile($name, $file, $bucket, $path, $life);
 
 		// Delete the archive for cleanup
 		unlink($file);

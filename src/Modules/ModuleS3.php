@@ -1,10 +1,5 @@
 <?php
 /**
- * Life cycle rules
- * In the bucket you should set up rules like LX_ where X is the mount of days after which the object expires
- */
-
-/**
  * Different ways to call S3 module
  * s3 [arguments] bucket name path1 [path2 ...]
  * arguments:
@@ -12,6 +7,8 @@
  * -p <path>    The bucked path
  * -l <n>       The number of days to live
  * -w <path>	Change the working directory of tar (TODO)
+ *
+ * -clean       Special argument that cleans the S3 storage
  */
 class ModuleS3 extends Module
 {
@@ -21,15 +18,16 @@ class ModuleS3 extends Module
 	const LIFE_MONTH = 31;
 
 	// Publics
-	public $name = 's3';
 	public $configName = 's3';
 	
 	// Privates
 	private $s3;
 	
 	// The constructor
-	public function __construct()
+	public function __construct($args)
 	{
+		parent::__construct($args);
+		
 		// Setup our wrapper for aws S3
 		$this->s3 = new S3($this->getConfig('AccessKey'), $this->getConfig('SecretKey'));
 	}
@@ -46,18 +44,13 @@ class ModuleS3 extends Module
 	 */
 	function backupFile($name, $file, $bucket, $directory = null, $life = self::LIFE_MONTH)
 	{
-		if(!file_exists($file))
-		{
-			$this->lastError = "The input file does not exists";
-			return false;
-		}
+		if ( ! file_exists($file))
+			throw new Exception('The input file does not exists');
 		
 		$time = date('Ymd').'T'.date('His');
-		if(!$this->s3->putObjectFile($file, $bucket, $directory.(($directory != null) ? '/' : '').'L'.$life.'_'.$name.'.'.$time.'.tar.gz'))
-		{
-			$this->lastError = "An error occured in the s3 library";
-			return false;
-		}
+		if ( ! $this->s3->putObjectFile($file, $bucket, $directory.(($directory != null) ? '/' : '').'L'.$life.'_'.$name.'.'.$time.'.tar.gz'))
+			throw new Exception('An error occured in the s3 library');
+			
 		return true;
 	}
 	
@@ -67,47 +60,19 @@ class ModuleS3 extends Module
 	 * @param array Arguments for this function
 	 * @return bool True on success False otherwise
 	 */
-	function run($args)
-	{
-		printf("Executing job S3\n");
-				
-		// Default values for flags
-		$dir = null;
-		$fileOnly = false;
-		$life = self::LIFE_MONTH;
-		
-		// Parse the optional flags
-		$c = count($args);
-		for($i = 0; $i < $c; $i++)
-		{
-			$arg = &$args[$i]; 
-			if($arg[0] == '-')
-			{
-				$t = $i;
-				switch($arg[1])
-				{
-					case 'f': $fileOnly = true; $a=1; break;
-					case 'p': $dir = $args[++$i]; $a=2; break;
-					case 'l': $life = intval($args[++$i]); $a=2; break;
-					default: $a=1; break;
-				}
-				for($z = $t; $z < $t+$a; $z++)
-					unset($args[$z]);
-			}
-		}
-		$args = array_values($args);
-		
+	function run()
+	{		
 		// Not enough args
-		if(count($args) < 3)
-		{
-			$this->lastError = "Not enough arguments";
-			return false;
-		}
+		if($this->getCmdNo() < 3)
+			throw new Exception('Not enough arguments');
 		
 		// Rest variables parser
-		$bucket = $args[0];
-		$name = $args[1];
-		$paths = array_slice($args, 2);
+		$dir = $this->getCmd('p', null);
+		$fileOnly = $this->getCmd('f', false);
+		$life = $this->getCmd('l', self::LIFE_MONTH);
+		$bucket = $this->getCmd(0);
+		$name = $this->getCmd(1);
+		$paths = $this->getCmds(2);
 		
 		// Implicit f flag
 		if(count($paths) == 1 && is_file($paths[0]))
@@ -115,8 +80,6 @@ class ModuleS3 extends Module
 				
 		// Create the archive
 		$tmpPath = $this->compress($paths, $fileOnly);
-		if(!$tmpPath)
-			return false;
 		
 		// Back this shit up
 		$upload = $this->backupFile($name, $tmpPath, $bucket, $dir, $life);

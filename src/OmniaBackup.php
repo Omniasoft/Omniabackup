@@ -1,11 +1,12 @@
 <?php
 define('MODULE_PATH', 'Modules');
 define('MODULE_CLASS', 'Module');
+define('DS', DIRECTORY_SEPARATOR);
 
 spl_autoload_register(function ($class)
 {
 	if ($class != MODULE_CLASS && strncmp($class, MODULE_CLASS, strlen(MODULE_CLASS)) == 0)
-		include(MODULE_PATH.DIRECTORY_SEPARATOR.$class.'.php');
+		include(MODULE_PATH.DS.$class.'.php');
 	else
 		include($class.'.php');
 });
@@ -32,13 +33,20 @@ class Omniabackup
 			
 			// Get the module
 			$className = (MODULE_CLASS.$job->module);
-			$module = new $className;
+			$module = new $className($job->args);
 			if ($module == null)
 				continue; // Wrong module specefied
 			
 			// Run the backup module
-			if ( ! $module->run($job->args))
-				printf("An error occured: %s\n", $module->getLastError());
+			try
+			{
+				printf("\tRunning %s\n", $job->module);
+				$module->run();
+			}
+			catch(Exception $e)
+			{
+				printf("\tAn error occured: %s\n", $e->getMessage());
+			}				
 		}	
 	}
 	
@@ -53,7 +61,7 @@ class Omniabackup
 		$return = array();
 		
 		// Get file contents
-		$crontents = file_get_contents('conf.d/cron.conf'); //$this->configDir.'/
+		$crontents = file_get_contents('conf.d'.DS.'cron.conf'); //$this->configDir.'/
 		$lines = preg_split('/\r\n|\r|\n/', $crontents);
 		
 		// Parse all the lines

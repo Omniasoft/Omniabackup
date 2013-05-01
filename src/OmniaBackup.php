@@ -13,8 +13,6 @@ spl_autoload_register(function ($class)
 
 class Omniabackup
 {
-	public $configDir = '/etc/omniashell';
-
 	/**
 	 * Run all the jobs
 	 */
@@ -31,15 +29,15 @@ class Omniabackup
 			if(!$job->cron->isDue())
 				continue;
 			
-			// Get the module
-			$className = (MODULE_CLASS.$job->module);
-			$module = new $className($job->args);
-			if ($module == null)
-				continue; // Wrong module specefied
-			
-			// Run the backup module
 			try
 			{
+				// Get the module
+				$className = (MODULE_CLASS.$job->module);
+				$module = new $className($job->args);
+				if ($module == null)
+					continue; // Wrong module specefied
+				
+				// Run the backup module
 				printf("\tRunning %s\n", $job->module);
 				$module->run();
 			}

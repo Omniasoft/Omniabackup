@@ -13,6 +13,14 @@ spl_autoload_register(function ($class)
 
 class Omniabackup
 {
+	private $root;
+	
+	function __construct()
+	{
+		// Get root directory
+		$this->root = realpath(dirname($_SERVER['PHP_SELF']));
+	}
+	
 	/**
 	 * Run all the jobs
 	 */
@@ -59,7 +67,7 @@ class Omniabackup
 		$return = array();
 		
 		// Get file contents
-		$crontents = file_get_contents('conf.d'.DS.'cron.conf'); //$this->configDir.'/
+		$crontents = file_get_contents($this->root.DS.'conf.d'.DS.'cron.conf');
 		$lines = preg_split('/\r\n|\r|\n/', $crontents);
 		
 		// Parse all the lines

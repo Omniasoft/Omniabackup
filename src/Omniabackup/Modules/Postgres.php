@@ -1,4 +1,6 @@
 <?php
+namespace Omniabackup\Modules;
+
 /**
  * Different ways to call S3Postgress module
  * s3postgress [arguments] bucket name
@@ -6,7 +8,7 @@
  * -p <path>    The bucked path
  * -l <n>       The number of days to live
  */
-class ModuleS3Postgres extends ModuleS3
+class Postgres extends Module
 {		
 	/**
 	 * Dump and compress the database
@@ -16,16 +18,16 @@ class ModuleS3Postgres extends ModuleS3
 	function getDatabaseDump()
 	{
 		// Execute the shell
-		$sql = $this->getTmpFile('Fulldump_'.date('d-m-Y_H-i').'.sql');
+		$sql = Module::getTempPath('Fulldump_'.date('d-m-Y_H-i').'.sql');
 		
 		// Make tmp postgres file
 		$this->execute('sudo -u postgres touch '.$sql);
 		if ( ! file_exists($sql))
-			throw new Exception('Unable to touch file');
+			throw new \Exception('Unable to touch file');
 		
-		$this->execute('sudo -u postgres pg_dumpall -f '.$sql.' -o');
+		$this->execute('sudo -u postgres pg_dumpall -f '.$sql.' -o --inserts');
 		if (filesize($sql) <= 0)
-			throw new Exception('Something wrong with database dump (zero filesize)');
+			throw new \Exception('Something wrong with database dump (zero filesize)');
 
 		// Compress
 		$archive = $this->compress(array($sql), true);
@@ -45,18 +47,18 @@ class ModuleS3Postgres extends ModuleS3
 	{
 		// Not enough args
 		if($this->getCmdNo() < 2)
-			throw new Exception('Not enough arguments');
+			throw new \Exception('Not enough arguments');
 			
 		// Get variables
 		$path = $this->getCmd('p', null);
-		$life = $this->getCmd('l', self::LIFE_MONTH);
+		$life = $this->getCmd('l', 0);
 		$bucket = $this->getCmd(0);
 		$name = $this->getCmd(1);
 		
 		// Dump the postgres database
 		$file = $this->getDatabaseDump();
 		if(!$file)
-			throw new Exception('Failed to dump the database');
+			throw new \Exception('Failed to dump the database');
 		
 		// Back this shit up
 		$upload = $this->backupFile($name, $file, $bucket, $path, $life);

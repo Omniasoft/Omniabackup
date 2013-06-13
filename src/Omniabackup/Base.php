@@ -1,5 +1,7 @@
 <?php
 
+namespace Omniabackup;
+
 class Base
 {
 	/**
@@ -28,5 +30,17 @@ class Base
 	static public function kill($pid, $force = false)
 	{
 		return $this->execute('kill'.($force ? ' -9 ' : ' ').$pid);
+	}
+
+
+	/**
+	 * Get temp file path
+	 * 
+	 * @param string Will make a path to tmp directory with given name (OPTIONAL)
+	 * @return string A path to a temporary file (it does not create this file)
+	 */
+	static public function getTempPath($fileName = null)
+	{
+		return TMP.DS.(($fileName != null) ? $fileName : uniqid('OS').'.tmp');
 	}
 }

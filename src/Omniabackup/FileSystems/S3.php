@@ -1,4 +1,6 @@
 <?php
+namespace Omniabackup\FileSystems;
+
 /**
  * Different ways to call S3 module
  * s3 [arguments] bucket name path1 [path2 ...]
@@ -10,7 +12,7 @@
  *
  * -clean       Special argument that cleans the S3 storage
  */
-class ModuleS3 extends Module
+class S3 extends FileSystem
 {
 	// Lifetimes
 	const LIFE_DAY = 1;

@@ -1,4 +1,8 @@
 <?php
+namespace Omniabackup\Modules;
+
+use Omniabackup\Base;
+use \ConsoleKit\DefaultOptionsParser;
 
 abstract class Module extends Base
 {
@@ -120,51 +124,33 @@ abstract class Module extends Base
 	 */
 	protected function compress($paths, $filesOnly = false)
 	{
-		if(!is_array($paths))
-			throw new Exception('Paths was not an array');
+		if( ! is_array($paths))
+			$paths = array($paths);
+
+		if (count($paths) <= 0)
+			throw new Exception('Not processing empty archive!');
 		
 		// Get tmp storage
-		$tmp = $this->getTmpFile();
-		
-		// If only files change dir on every file but watch out for relative vs absolute
-		$files = '';
-		if($filesOnly)
+		$tmp = Base::getTempPath();
+		$tar = new \Archive_Tar($tmp, true);
+
+		// Figure out what kind of path to remove
+		$removePrefixPath = dirname($paths[0]);
+		foreach ($paths as &$path)
 		{
-			$cwd = getcwd();
-			foreach($paths as &$path)
-			{
-				if(!is_file($path)) continue;
-				$d = dirname($path);
-				$files .= ' -C '.($d[0] != DS ? $cwd.DS.$d : $d).' '.basename($path);
-			}
+			if (strlen(dirname($path)) < strlen($removePrefixPath))
+				$removePrefixPath = dirname($path);
 		}
-		else
-			$files = implode(' ',$paths); //Else just implode that shit
-	
-		// Run the command
-		$this->execute('tar czf  "'.$tmp.'" '.$files);
+
+		// Create
+		if (! $tar->createModify($paths, '' , $removePrefixPath))
+			throw new Exception('Something went wrong with tar creation');
 		
-		// Check for errors
+		// Sanity check
 		if( ! (file_exists($tmp) && filesize($tmp) > 0))
-			throw new Exception('Something went wrong with compressing');
+			throw new Exception('Tar creation was good but still no file...');
 		
 		// Return output
 		return $tmp;
-	}
-	
-	/**
-	 * Get temp file path
-	 * 
-	 * @param string Will make a path to tmp directory with given name (OPTIONAL)
-	 * @return string A path to a temporary file (it does not create this file)
-	 */
-	protected function getTmpFile($fileName = null)
-	{
-		if(!is_dir('tmp'))
-		{
-			mkdir('tmp');
-			chmod('tmp', 0777);
-		}
-		return 'tmp'.DS.(($fileName != null) ? $fileName : uniqid('OS').'.tmp');
 	}
 }

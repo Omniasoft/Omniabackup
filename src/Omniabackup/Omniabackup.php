@@ -1,26 +1,10 @@
 <?php
-define('MODULE_PATH', 'Modules');
-define('MODULE_CLASS', 'Module');
-define('DS', DIRECTORY_SEPARATOR);
+namespace Omniabackup;
 
-spl_autoload_register(function ($class)
-{
-	if ($class != MODULE_CLASS && strncmp($class, MODULE_CLASS, strlen(MODULE_CLASS)) == 0)
-		include(MODULE_PATH.DS.$class.'.php');
-	else
-		include($class.'.php');
-});
+use \Cron\CronExpression;
 
 class Omniabackup
-{
-	private $root;
-	
-	function __construct()
-	{
-		// Get root directory
-		$this->root = realpath(dirname($_SERVER['PHP_SELF']));
-	}
-	
+{	
 	/**
 	 * Run all the jobs
 	 */
@@ -34,25 +18,18 @@ class Omniabackup
 		foreach ($jobs as &$job)
 		{			
 			// Skip jobs that are not due
-			if(!$job->cron->isDue())
+			if( ! $job->cron->isDue())
 				continue;
 			
-			try
-			{
-				// Get the module
-				$className = (MODULE_CLASS.$job->module);
-				$module = new $className($job->args);
-				if ($module == null)
-					continue; // Wrong module specefied
-				
-				// Run the backup module
-				printf("\tRunning %s\n", $job->module);
-				$module->run();
-			}
-			catch(Exception $e)
-			{
-				printf("\tAn error occured: %s\n", $e->getMessage());
-			}				
+			// Get the module
+			$className = 'Omniabackup\\Modules\\'.$job->module;
+			$module = new $className($job->args);
+			if ($module == null)
+				continue; // Wrong module specified
+			
+			// Run the backup module
+			printf("\tRunning %s\n", $job->module);
+			$module->run();
 		}	
 	}
 	
@@ -66,14 +43,14 @@ class Omniabackup
 		// The return array with all Cron object and module + arguments
 		$return = array();
 		
-		// Get file contents
-		$crontents = file_get_contents($this->root.DS.'conf.d'.DS.'cron.conf');
+		// Get file contents and split on newline
+		$crontents = file_get_contents(ROOT.DS.'conf.d'.DS.'cron.conf');
 		$lines = preg_split('/\r\n|\r|\n/', $crontents);
 		
 		// Parse all the lines
 		foreach ($lines as &$l)
 		{
-			// Preprocess the line
+			// Preprocess the line on whitespaces
 			$l = preg_replace('!\s+!', ' ', trim($l));
 			
 			// Skip comment and empty lines
@@ -90,7 +67,7 @@ class Omniabackup
 			
 			// Rebuild our original time part
 			$cronExp = implode(' ', $time);
-			$cron = Cron\CronExpression::factory($cronExp);
+			$cron = CronExpression::factory($cronExp);
 			
 			// Add it to the list
 			$return[] = (object) array('cron' => $cron, 'module' => $parts[5], 'args' => $arguments);

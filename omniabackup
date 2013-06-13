@@ -1,11 +1,16 @@
 #!/usr/bin/php
 <?php
-// Includes
-require_once('vendor/autoload.php');
-include('src/OmniaBackup.php');
+require_once('bootstrap.php');
 
 // TODO: Mutex
 
 // Create the backup and let it figure the rest out
-$backup = new Omniabackup();
-$backup->run();
+try
+{
+	$backup = new Omniabackup\Omniabackup();
+	$backup->run();
+}
+catch(Exception $e)
+{
+	printf("Error: %s\nIn %s at line %d\n", $e->getMessage(), $e->getFile(), $e->getLine());
+}

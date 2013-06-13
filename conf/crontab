@@ -6,4 +6,4 @@
 # |  |  |  |  |
 # *  *  *  *  *  module to be executed with arguments
   *  *  *  *  *  Postgres --filesystem="S3 -l=31 -p=database/postgres backup.2cnnct.com server1"
-  *  *  *  *  *  S3 -cleanup backup.devdb.nl backup.2cnnct.com
+  *  *  *  *  *  S3 -cleanup backup.devdb.nl backup.2cnnct.com "asd -l=31 a/s s - s"

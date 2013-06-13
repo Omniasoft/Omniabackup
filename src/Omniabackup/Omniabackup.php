@@ -22,7 +22,7 @@ class Omniabackup
 				continue;
 			
 			// Get the module
-			$className = 'Omniabackup\\Modules\\'.$job->module;
+			$className = 'Omniabackup\\Module\\'.$job->module;
 			$module = new $className($job->args);
 			if ($module == null)
 				continue; // Wrong module specified
@@ -43,9 +43,13 @@ class Omniabackup
 		// The return array with all Cron object and module + arguments
 		$return = array();
 		
+		// Check if we can read the crontab
+		if ( ! is_readable(PATH_CRONTAB))
+			throw new \Exception('Crontab is not readable.');
+
 		// Get file contents and split on newline
-		$crontents = file_get_contents(ROOT.DS.'conf.d'.DS.'cron.conf');
-		$lines = preg_split('/\r\n|\r|\n/', $crontents);
+		$crontents = file_get_contents(PATH_CRONTAB);
+		$lines = preg_split('/\R/u', $crontents);
 		
 		// Parse all the lines
 		foreach ($lines as &$l)
@@ -58,7 +62,8 @@ class Omniabackup
 			if ($l[0] == '#') continue;
 			
 			// Explode it and slice it
-			$parts = explode(' ', $l);
+			preg_match_all('/[a-z|A-Z|0-9|=|-]*"(?:\\\\.|[^\\\\"])*"|\S+/', $l, $parts);
+			$parts = $parts[0];
 			$time = array_slice($parts, 0, 5);
 			$arguments = array_slice($parts, 6);
 			

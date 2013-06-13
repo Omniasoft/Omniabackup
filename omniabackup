@@ -2,8 +2,6 @@
 <?php
 require_once('bootstrap.php');
 
-// TODO: Mutex
-
 // Create the backup and let it figure the rest out
 try
 {
@@ -13,4 +11,5 @@ try
 catch(Exception $e)
 {
 	printf("Error: %s\nIn %s at line %d\n", $e->getMessage(), $e->getFile(), $e->getLine());
+	//TODO: Signal people that this error occurs!!
 }

@@ -1,5 +1,5 @@
 <?php
-namespace Omniabackup\Modules;
+namespace Omniabackup\Module;
 
 /**
  * Different ways to call S3Postgress module

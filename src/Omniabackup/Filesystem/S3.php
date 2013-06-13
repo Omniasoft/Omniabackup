@@ -1,5 +1,8 @@
 <?php
-namespace Omniabackup\FileSystems;
+namespace Omniabackup\Filesystem;
+
+use Omniabackup\Base;
+use Omniabackup\Config;
 
 /**
  * Different ways to call S3 module
@@ -12,7 +15,7 @@ namespace Omniabackup\FileSystems;
  *
  * -clean       Special argument that cleans the S3 storage
  */
-class S3 extends FileSystem
+class S3 extends Base implements Filesystem
 {
 	// Lifetimes
 	const LIFE_DAY = 1;
@@ -31,7 +34,7 @@ class S3 extends FileSystem
 		parent::__construct($args);
 		
 		// Setup our wrapper for aws S3
-		$this->s3 = new S3($this->getConfig('AccessKey'), $this->getConfig('SecretKey'));
+		$this->s3 = new S3(Config::get('s3')->accessKey, Config::get('s3')->accessKey);
 	}
 	
 	/**

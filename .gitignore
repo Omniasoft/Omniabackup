@@ -1,6 +1,9 @@
 # General
 *.lock
 _notes
+sftp-config.json
+tmp
+conf/*.php
 
 # Composer
 vendor

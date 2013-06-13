@@ -1,8 +1,8 @@
 <?php
-namespace Omniabackup\Modules;
+namespace Omniabackup\Module;
 
 use Omniabackup\Base;
-use \ConsoleKit\DefaultOptionsParser;
+use ConsoleKit\DefaultOptionsParser;
 
 abstract class Module extends Base
 {
@@ -11,11 +11,11 @@ abstract class Module extends Base
 
 	// Protecteds
 	protected $configFile;
+	protected $filesystem = null;
 	
 	// Privates
 	private $arguments;
 	private $argOffset;
-	private $configCache;
 	
 	// Every module should atleast implement a run function
 	abstract public function run();
@@ -27,7 +27,6 @@ abstract class Module extends Base
 	 */	
 	public function __construct($args)
 	{
-		$this->configCache = array();
 		$this->parseCmd($args);
 	}
 	
@@ -77,7 +76,7 @@ abstract class Module extends Base
 	}
 	
 	/**
-	 * Get all unnamed arguments from a specefic offset
+	 * Get all unnamed arguments from a specific offset
 	 *
 	 * @param int $offset
 	 *
@@ -98,23 +97,7 @@ abstract class Module extends Base
 	{
 		return count($this->arguments);
 	}
-	
-	/**
-	 * Get a config value
-	 *
-	 * @return string If key not exists returns null else the value of the key in the ini
-	 */
-	protected function getConfig($key)
-	{
-		if ($this->configCache == null)
-			$this->configCache = @parse_ini_file('conf.d'.DS.$this->configName.'.ini');
-
-		if ( ! is_array($this->configCache))
-			throw new Exception('Config file reading error');
-		
-		return (array_key_exists($key, $this->configCache) ? $this->configCache[$key] : null);
-	}
-		
+			
 	/** 
 	 * Compress a list of files or a mix of files and folders
 	 *

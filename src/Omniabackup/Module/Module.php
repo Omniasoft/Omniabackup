@@ -42,6 +42,7 @@ abstract class Module extends Base
 		if( ! is_array($arguments))
 			return;
 			
+		print_r($arguments);
 		$argArray = array();
 		$flagArray = array();
 		foreach ($arguments as &$argument)
@@ -49,7 +50,9 @@ abstract class Module extends Base
 			// Flag var
 			if (preg_match('/^-+(.*?)$/', $argument, $match))
 			{
+				print_r($match);
 				$args = explode('=', $match[1]);
+				print_r($args);
 				$flagArray[$args[0]] = (count($args) == 2 ? $args[1] : true);		
 			}
 			else
@@ -61,6 +64,8 @@ abstract class Module extends Base
 		// Order array
 		$this->argOffset = count($flagArray);
 		$this->arguments = array_merge($flagArray, $argArray);
+
+
 	}
 	
     /**
@@ -96,44 +101,5 @@ abstract class Module extends Base
 	public function getCmdNo()
 	{
 		return count($this->arguments);
-	}
-			
-	/** 
-	 * Compress a list of files or a mix of files and folders
-	 *
-	 * @param string $paths An array of paths to files or folders
-	 * @param bool $filesOnly True if you want only files in archive excluding directory
-	 * @return string The pathname to the archive
-	 */
-	protected function compress($paths, $filesOnly = false)
-	{
-		if( ! is_array($paths))
-			$paths = array($paths);
-
-		if (count($paths) <= 0)
-			throw new Exception('Not processing empty archive!');
-		
-		// Get tmp storage
-		$tmp = Base::getTempPath();
-		$tar = new \Archive_Tar($tmp, true);
-
-		// Figure out what kind of path to remove
-		$removePrefixPath = dirname($paths[0]);
-		foreach ($paths as &$path)
-		{
-			if (strlen(dirname($path)) < strlen($removePrefixPath))
-				$removePrefixPath = dirname($path);
-		}
-
-		// Create
-		if (! $tar->createModify($paths, '' , $removePrefixPath))
-			throw new Exception('Something went wrong with tar creation');
-		
-		// Sanity check
-		if( ! (file_exists($tmp) && filesize($tmp) > 0))
-			throw new Exception('Tar creation was good but still no file...');
-		
-		// Return output
-		return $tmp;
 	}
 }

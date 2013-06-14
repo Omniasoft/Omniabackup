@@ -30,7 +30,7 @@ class Postgres extends Module
 			throw new \Exception('Something wrong with database dump (zero filesize)');
 
 		// Compress
-		$archive = $this->compress(array($sql), true);
+		$archive = Module::compress(array($sql), true);
 		
 		// Cleanup
 		unlink($sql);

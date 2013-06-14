@@ -62,7 +62,7 @@ class Omniabackup
 			if ($l[0] == '#') continue;
 			
 			// Explode it and slice it
-			preg_match_all('/[a-z|A-Z|0-9|=|-]*"(?:\\\\.|[^\\\\"])*"|\S+/', $l, $parts);
+			preg_match_all(REGEX_CLI, $l, $parts);
 			$parts = $parts[0];
 			$time = array_slice($parts, 0, 5);
 			$arguments = array_slice($parts, 6);

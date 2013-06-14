@@ -9,7 +9,7 @@ namespace Omniabackup\Module;
  * -l <n>       The number of days to live
  */
 class Postgres extends Module
-{		
+{
 	/**
 	 * Dump and compress the database
 	 *
@@ -46,16 +46,10 @@ class Postgres extends Module
 	function run()
 	{
 		// Not enough args
-		if($this->getCmdNo() < 2)
-			throw new \Exception('Not enough arguments');
+		if($this->filesystem_ == null)
+			throw new \Exception('No filesystem defined');
 			
-		// Get variables
-		$path = $this->getCmd('p', null);
-		$life = $this->getCmd('l', 0);
-		$bucket = $this->getCmd(0);
-		$name = $this->getCmd(1);
-		
-		// Dump the postgres database
+		// Dump the Postgres database
 		$file = $this->getDatabaseDump();
 		if(!$file)
 			throw new \Exception('Failed to dump the database');

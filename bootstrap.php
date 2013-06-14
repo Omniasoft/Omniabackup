@@ -13,6 +13,8 @@ define('PATH_TMP', PATH_ROOT.DS.'tmp');
 define('PATH_CONFIG', PATH_ROOT.DS.'conf');
 define('PATH_CRONTAB', PATH_CONFIG.DS.'crontab');
 
+define('REGEX_CLI', '/[a-z|A-Z|0-9|=|-]*"(?:\\\\.|[^\\\\"])*"|\S+/');
+
 // Check if temp directory exists if not create it
 if ( ! is_dir(PATH_TMP))
 	mkdir(PATH_TMP);

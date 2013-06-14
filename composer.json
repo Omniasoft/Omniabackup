@@ -11,9 +11,9 @@
     "minimum-stability": "dev",
     "require": {
         "mtdowling/cron-expression": "~1.0",
-		"oyatel/amazon-s3-php-class": "dev-master",
+		"aws/aws-sdk-php": "~2.3",
 		"linkorb/transip-php": "~4.1",
-		"maximebf/consolekit": "~1.0",
+		"ulrichsg/getopt-php": "~1.0",
 		"pear/archive_tar": "~1.3"
     },
 	"autoload": {

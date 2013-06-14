@@ -41,7 +41,7 @@ class Base
 	 */
 	static public function getTempPath($fileName = null)
 	{
-		return TMP.DS.(($fileName != null) ? $fileName : uniqid('OS').'.tmp');
+		return PATH_TMP.DS.(($fileName != null) ? $fileName : uniqid('OS').'.tmp');
 	}
 
 	/** 
